@@ -29,20 +29,18 @@ const TreasureHunt = ({ scene, playerRef }) => {
     const prevLabelRef = useRef("");
 
     // Inputs
-    const keys = useRef({ f: false, e: false });
+    const keys = useRef({ e: false });
 
     // Constants
-    const KEY_POS = new THREE.Vector3(1.3, 25.6, -0.1); // Example location for Key
+    const KEY_POS = new THREE.Vector3(-3.7, 22.5, -11.9); // Example location for Key
     const CHEST_POS = new THREE.Vector3(3.3, 29.4, 2.1); // Example location for Chest
 
     // ─── Input Handling ───
     useEffect(() => {
         const onDown = (e) => {
-            if (e.code === 'KeyF') keys.current.f = true;
             if (e.code === 'KeyE') keys.current.e = true;
         }
         const onUp = (e) => {
-            if (e.code === 'KeyF') keys.current.f = false;
             if (e.code === 'KeyE') keys.current.e = false;
         }
         window.addEventListener('keydown', onDown);
@@ -63,7 +61,7 @@ const TreasureHunt = ({ scene, playerRef }) => {
         const createKey = () => {
             const group = new THREE.Group();
             group.position.copy(KEY_POS);
-            group.scale.set(0.4, 0.4, 0.4); // Make key smaller as requested
+            group.scale.set(0.4, 0.4, 0.4); // Make key smaller 
 
             const goldMat = new THREE.MeshStandardMaterial({
                 color: 0xFFD700,
@@ -409,7 +407,7 @@ const TreasureHunt = ({ scene, playerRef }) => {
             {/* Interaction Prompt */}
             {interactionLabel && (
                 <div className="interaction-prompt" style={{ zIndex: 9999 }}>
-                    <div className="key-hint">F</div>
+                    <div className="key-hint">E</div>
                     <span className={interactionLabel.includes("Locked") ? "text-red-300" : "text-white"}>
                         {interactionLabel}
                     </span>

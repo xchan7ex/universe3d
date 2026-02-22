@@ -122,7 +122,7 @@ const LetterHunt = ({ scene, playerRef }) => {
     const requestRef = useRef();
 
     // Track keys for polling in animation loop
-    const keys = useRef({ f: false, e: false });
+    const keys = useRef({ e: false });
 
     useEffect(() => {
         const onDown = (e) => {
@@ -252,7 +252,7 @@ const LetterHunt = ({ scene, playerRef }) => {
         const configs = [
             { type: 'I', pos: new THREE.Vector3(-2.0, 4.6, -0.6) },
             { type: 'I', pos: new THREE.Vector3(3.4, 11.4, -2.8) },
-            { type: 'T', pos: new THREE.Vector3(3.8, 18.5, -0.6) }
+            { type: 'T', pos: new THREE.Vector3(3.8, 18.1, -0.6) }
         ];
 
         const newLetters = configs.map(config => {
@@ -294,7 +294,7 @@ const LetterHunt = ({ scene, playerRef }) => {
                         const distHz = Math.sqrt(dx * dx + dz * dz);
                         const dy = Math.abs(playerPos.y - letter.mesh.position.y);
 
-                        if (distHz < 3.0 && dy < 5.0) {
+                        if (distHz < 2.0 && dy < 3.0) {
                             if (distHz < closestDist) {
                                 closestDist = distHz;
                                 closestLetter = letter;
@@ -309,7 +309,7 @@ const LetterHunt = ({ scene, playerRef }) => {
                     const dz = playerPos.z - giftRef.current.position.z;
                     const distHz = Math.sqrt(dx * dx + dz * dz);
 
-                    if (distHz < 3.0) {
+                    if (distHz < 2.0) {
                         // Gift takes priority or becomes the target if no letter is strictly closer
                         if (distHz < closestDist) {
                             closestDist = distHz;
@@ -410,7 +410,7 @@ const LetterHunt = ({ scene, playerRef }) => {
             {/* Interaction Prompt - Standard Game Style */}
             {showPrompt && !giftOpened && (
                 <div className="interaction-prompt" style={{ zIndex: 9999 }}>
-                    <div className="key-hint">F</div>
+                    <div className="key-hint">E</div>
                     <span>
                         {activeTarget?.letterType === 'GIFT' ? 'Open Gift' : 'Collect Letter'}
                     </span>
