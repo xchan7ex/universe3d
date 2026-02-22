@@ -12,7 +12,7 @@
   /* REMOVED background that was blocking canvas */
 }
 
-.game-ui > * {
+.game-ui>* {
   pointer-events: auto;
 }
 
@@ -76,7 +76,8 @@
   color: #e2e8f0;
   font-size: 0.9rem;
   font-weight: 500;
-  order: 1; /* Middle position */
+  order: 1;
+  /* Middle position */
 }
 
 .game-ui-location svg {
@@ -95,7 +96,8 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 12px;
-  order: 2; /* Right position */
+  order: 2;
+  /* Right position */
 }
 
 .player-avatar {
@@ -172,6 +174,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -247,7 +250,7 @@
   z-index: 200;
   animation: slideDown 0.3s ease-out;
   overflow: visible;
-  
+
 }
 
 @keyframes slideDown {
@@ -255,6 +258,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -291,7 +295,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  
+
 }
 
 .menu-item:hover {
@@ -415,6 +419,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -524,7 +529,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: 
+  background:
     linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -533,8 +538,17 @@
 
 
 @keyframes playerPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
 }
 
 /* ─── Bottom Info ─── */
@@ -683,9 +697,9 @@
   position: relative;
   flex: 1;
   height: calc(100% - 36px);
-  background: 
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
   transition: all 0.3s ease;
 }
@@ -716,9 +730,12 @@
 }
 
 @keyframes playerDotPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 10px #4FC3F7, 0 0 20px rgba(79, 195, 247, 0.5);
   }
+
   50% {
     box-shadow: 0 0 15px #4FC3F7, 0 0 30px rgba(79, 195, 247, 0.7);
   }
@@ -759,8 +776,13 @@
 }
 
 @keyframes overlayFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .search-modal {
@@ -775,11 +797,12 @@
 }
 
 @keyframes modalSlideIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(-20px) scale(0.95);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -1161,7 +1184,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .model-loading-content p {
@@ -1294,6 +1319,7 @@
     opacity: 0;
     transform: scale(0.9) translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1602,8 +1628,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ─── Feedback Modal ─── */
@@ -1784,6 +1815,7 @@
     opacity: 0;
     transform: scale(0.5);
   }
+
   to {
     opacity: 1;
     transform: scale(1);

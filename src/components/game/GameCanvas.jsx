@@ -5,6 +5,9 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-
 import '../../styles/GameCanvas.css'
 import MissionInfoModal from './MissionInfoModal'
 import MissionQuizModal from './MissionQuizModal'
+import LetterHunt from './LetterHunt'
+import TreasureHunt from './TreasureHunt'
+import { NoticeBoardSystem } from './noticeboard/NoticeBoardSystem'
 
 // Patch Three.js to use BVH-accelerated raycasting (massive speedup for complex meshes)
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
@@ -21,6 +24,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
   const [currentMission, setCurrentMission] = useState(null)
   const [missionCubes, setMissionCubes] = useState([])
   const [interactionTarget, setInteractionTarget] = useState(null)
+  const [sceneInstance, setSceneInstance] = useState(null)
 
   // Refs for scene and mission cubes (accessible outside useEffect)
   const sceneRef = useRef(null)
@@ -28,6 +32,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
 
   // ─── Input State ───
   const [isLocked, setIsLocked] = useState(false)
+  const noticeBoardSystemRef = useRef(null)
 
   // ─── Mouse State (Pointer Lock) ───
   const inputState = useRef({
@@ -176,6 +181,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     // ─── Scene Setup ───
     const scene = new THREE.Scene()
     sceneRef.current = scene
+    setSceneInstance(scene)
     scene.background = new THREE.Color(0x87CEEB)
     scene.fog = new THREE.Fog(0x87CEEB, 100, 500)
 
@@ -222,6 +228,10 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     playerRef.current = player
     player.position.set(-70, 50, -4)
     scene.add(player)
+
+    // ─── Initialize Notice Board System ───
+    const noticeBoardSystem = new NoticeBoardSystem(renderer, scene, camera, playerRef)
+    noticeBoardSystemRef.current = noticeBoardSystem
 
     // ─── Player State ───
     playerState.current = {
@@ -496,7 +506,18 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     )
 
     // ─── Event Handlers ───
-    const onClick = () => {
+    const onClick = (e) => {
+      // Delegate to NoticeBoardSystem
+      if (noticeBoardSystemRef.current) {
+        noticeBoardSystemRef.current.handleInput(e)
+        if (noticeBoardSystemRef.current.isZoomed) {
+          if (inputState.current.isLocked) {
+            document.exitPointerLock()
+          }
+          return
+        }
+      }
+
       if (!inputState.current.isLocked) {
         renderer.domElement.requestPointerLock()
       }
@@ -509,6 +530,10 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     }
 
     const onMouseMove = (e) => {
+      if (noticeBoardSystemRef.current) {
+        noticeBoardSystemRef.current.handleInput(e)
+      }
+
       if (!inputState.current.isLocked) return
 
       const deltaX = e.movementX || 0
@@ -615,172 +640,181 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       }
 
       // ─── Calculate Movement Direction ───
-      const moveDirection = new THREE.Vector3()
+      if (!noticeBoardSystemRef.current?.isZoomed) {
+        const moveDirection = new THREE.Vector3()
 
-      const forward = new THREE.Vector3(
-        -Math.sin(cameraSettings.rotationY),
-        0,
-        -Math.cos(cameraSettings.rotationY)
-      )
-
-      const right = new THREE.Vector3(
-        Math.cos(cameraSettings.rotationY),
-        0,
-        -Math.sin(cameraSettings.rotationY)
-      )
-
-      if (playerState.current.moveForward) moveDirection.add(forward)
-      if (playerState.current.moveBackward) moveDirection.sub(forward)
-      if (playerState.current.moveLeft) moveDirection.sub(right)
-      if (playerState.current.moveRight) moveDirection.add(right)
-
-      // ─── Determine Animation State ───
-      const isMoving = moveDirection.length() > 0
-      const isSprinting = playerState.current.sprint && isMoving
-
-      // Detect if climbing stairs (height changing while moving)
-      const heightDiff = playerState.current.targetY - playerState.current.currentY
-      const isClimbingStairs = isMoving && heightDiff > 0.1
-
-      // ─── Play Appropriate Animation ───
-      if (mixer && Object.keys(animations).length > 0) {
-        if (isClimbingStairs && animations['ascend']) {
-          playAnimation('ascend')
-        } else if (isSprinting && animations['run']) {
-          playAnimation('run')
-        } else if (isMoving && animations['walk']) {
-          playAnimation('walk')
-        } else if (!isMoving) {
-          playAnimation('idle')
-        }
-      }
-
-      // ─── Apply Movement with Collision ───
-      if (isMoving) {
-        moveDirection.normalize()
-
-        const speed = playerState.current.sprint
-          ? playerState.current.speed * playerState.current.sprintMultiplier
-          : playerState.current.speed
-
-        const collisionDist = 0.6
-
-        const dirX = new THREE.Vector3(moveDirection.x, 0, 0).normalize()
-        if (moveDirection.x !== 0 && !checkWallCollision(player.position, dirX, collisionDist)) {
-          player.position.x += moveDirection.x * speed
-        }
-
-        const dirZ = new THREE.Vector3(0, 0, moveDirection.z).normalize()
-        if (moveDirection.z !== 0 && !checkWallCollision(player.position, dirZ, collisionDist)) {
-          player.position.z += moveDirection.z * speed
-        }
-
-        // Rotate player to face movement direction
-        const targetRotation = Math.atan2(moveDirection.x, moveDirection.z)
-        let rotDiff = targetRotation - player.rotation.y
-        while (rotDiff > Math.PI) rotDiff -= Math.PI * 2
-        while (rotDiff < -Math.PI) rotDiff += Math.PI * 2
-        player.rotation.y += rotDiff * 0.15
-      }
-
-      // ─── Ground Detection ───
-      if (collidableMeshes.length > 0) {
-        const groundY = getGroundHeight(player.position)
-        playerState.current.targetY = groundY
-
-        const heightDiff = playerState.current.targetY - playerState.current.currentY
-
-        if (Math.abs(heightDiff) < 2) {
-          playerState.current.currentY += heightDiff * 0.15
-        }
-
-        player.position.y = playerState.current.currentY
-
-        // ─── Update Floor UI ───
-        const detectedFloor = Math.max(0, Math.floor((player.position.y + 0.5) / 4) + 1)
-
-        if (playerRef.current.detectedFloor !== detectedFloor) {
-          playerRef.current.detectedFloor = detectedFloor
-          onFloorChange?.(detectedFloor)
-        }
-      }
-
-      // ─── Update Camera with Collision ───
-      const cameraTarget = new THREE.Vector3(
-        player.position.x,
-        player.position.y + 1.2,
-        player.position.z
-      )
-
-      // Calculate ideal camera position
-      const idealOffset = new THREE.Vector3(
-        Math.sin(cameraSettings.rotationY) * cameraSettings.distance,
-        cameraSettings.height + cameraSettings.rotationX * 2,
-        Math.cos(cameraSettings.rotationY) * cameraSettings.distance
-      )
-      const idealPosition = cameraTarget.clone().add(idealOffset)
-
-      // ─── Camera Collision Detection (OPTIMIZED: uses nearby meshes) ───
-      const rayDirection = idealPosition.clone().sub(cameraTarget).normalize()
-      const rayDistance = idealPosition.distanceTo(cameraTarget)
-
-      raycaster.set(cameraTarget, rayDirection)
-      raycaster.far = rayDistance
-
-      const nearby = getNearbyMeshes(player.position)
-      const cameraHits = raycaster.intersectObjects(nearby, false)
-
-      let finalCameraPosition = idealPosition.clone()
-
-      if (cameraHits.length > 0) {
-        // Camera would hit something - pull it closer
-        const hitDistance = cameraHits[0].distance
-        const safeDistance = Math.max(0.5, hitDistance - 0.3) // Keep 0.3 units away from wall
-
-        // Calculate new position at safe distance
-        finalCameraPosition = cameraTarget.clone().add(
-          rayDirection.multiplyScalar(safeDistance)
+        const forward = new THREE.Vector3(
+          -Math.sin(cameraSettings.rotationY),
+          0,
+          -Math.cos(cameraSettings.rotationY)
         )
-      }
 
-      // Smooth camera movement
-      camera.position.lerp(finalCameraPosition, cameraSettings.smoothness)
-      camera.lookAt(cameraTarget)
+        const right = new THREE.Vector3(
+          Math.cos(cameraSettings.rotationY),
+          0,
+          -Math.sin(cameraSettings.rotationY)
+        )
 
-      // Update light position (no shadows)
-      directionalLight.position.set(
-        player.position.x + 30,
-        50,
-        player.position.z + 30
-      )
+        if (playerState.current.moveForward) moveDirection.add(forward)
+        if (playerState.current.moveBackward) moveDirection.sub(forward)
+        if (playerState.current.moveLeft) moveDirection.sub(right)
+        if (playerState.current.moveRight) moveDirection.add(right)
 
-      // ─── Animate mission cubes (rotation and floating) ───
-      const time = Date.now() * 0.001
-      cubesRef.current.forEach(({ mesh }) => {
-        if (mesh) {
-          mesh.rotation.y = time
-          if (mesh.userData.initialY === undefined) mesh.userData.initialY = mesh.position.y
-          mesh.position.y = mesh.userData.initialY + Math.sin(time * 2) * 0.2
+        // ─── Determine Animation State ───
+        const isMoving = moveDirection.length() > 0
+        const isSprinting = playerState.current.sprint && isMoving
+
+        // Detect if climbing stairs (height changing while moving)
+        const heightDiff = playerState.current.targetY - playerState.current.currentY
+        const isClimbingStairs = isMoving && heightDiff > 0.1
+
+        // ─── Play Appropriate Animation ───
+        if (mixer && Object.keys(animations).length > 0) {
+          if (isClimbingStairs && animations['ascend']) {
+            playAnimation('ascend')
+          } else if (isSprinting && animations['run']) {
+            playAnimation('run')
+          } else if (isMoving && animations['walk']) {
+            playAnimation('walk')
+          } else if (!isMoving) {
+            playAnimation('idle')
+          }
         }
-      })
 
-      // ─── Check for mission cube proximity (manual interaction) ───
-      if (playerRef.current && inputState.current.isLocked) {
-        let foundTarget = null
-        cubesRef.current.forEach(({ mesh, mission }) => {
-          if (!mesh || !mesh.visible) return
-          const distance = playerRef.current.position.distanceTo(mesh.position)
-          if (distance < 2) {
-            foundTarget = { mesh, mission }
+        // ─── Apply Movement with Collision ───
+        if (isMoving) {
+          moveDirection.normalize()
+
+          const speed = playerState.current.sprint
+            ? playerState.current.speed * playerState.current.sprintMultiplier
+            : playerState.current.speed
+
+          const collisionDist = 0.6
+
+          const dirX = new THREE.Vector3(moveDirection.x, 0, 0).normalize()
+          if (moveDirection.x !== 0 && !checkWallCollision(player.position, dirX, collisionDist)) {
+            player.position.x += moveDirection.x * speed
+          }
+
+          const dirZ = new THREE.Vector3(0, 0, moveDirection.z).normalize()
+          if (moveDirection.z !== 0 && !checkWallCollision(player.position, dirZ, collisionDist)) {
+            player.position.z += moveDirection.z * speed
+          }
+
+          // Rotate player to face movement direction
+          const targetRotation = Math.atan2(moveDirection.x, moveDirection.z)
+          let rotDiff = targetRotation - player.rotation.y
+          while (rotDiff > Math.PI) rotDiff -= Math.PI * 2
+          while (rotDiff < -Math.PI) rotDiff += Math.PI * 2
+          player.rotation.y += rotDiff * 0.15
+        }
+
+        // ─── Ground Detection ───
+        if (collidableMeshes.length > 0) {
+          const groundY = getGroundHeight(player.position)
+          playerState.current.targetY = groundY
+
+          const heightDiff = playerState.current.targetY - playerState.current.currentY
+
+          if (Math.abs(heightDiff) < 2) {
+            playerState.current.currentY += heightDiff * 0.15
+          }
+
+          player.position.y = playerState.current.currentY
+
+          // ─── Update Floor UI ───
+          const detectedFloor = Math.max(0, Math.floor((player.position.y + 0.5) / 4) + 1)
+
+          if (playerRef.current.detectedFloor !== detectedFloor) {
+            playerRef.current.detectedFloor = detectedFloor
+            onFloorChange?.(detectedFloor)
+          }
+        }
+
+        // ─── Update Camera with Collision ───
+        const cameraTarget = new THREE.Vector3(
+          player.position.x,
+          player.position.y + 1.2,
+          player.position.z
+        )
+
+        // Calculate ideal camera position
+        const idealOffset = new THREE.Vector3(
+          Math.sin(cameraSettings.rotationY) * cameraSettings.distance,
+          cameraSettings.height + cameraSettings.rotationX * 2,
+          Math.cos(cameraSettings.rotationY) * cameraSettings.distance
+        )
+        const idealPosition = cameraTarget.clone().add(idealOffset)
+
+        // ─── Camera Collision Detection (OPTIMIZED: uses nearby meshes) ───
+        const rayDirection = idealPosition.clone().sub(cameraTarget).normalize()
+        const rayDistance = idealPosition.distanceTo(cameraTarget)
+
+        raycaster.set(cameraTarget, rayDirection)
+        raycaster.far = rayDistance
+
+        const nearby = getNearbyMeshes(player.position)
+        const cameraHits = raycaster.intersectObjects(nearby, false)
+
+        let finalCameraPosition = idealPosition.clone()
+
+        if (cameraHits.length > 0) {
+          // Camera would hit something - pull it closer
+          const hitDistance = cameraHits[0].distance
+          const safeDistance = Math.max(0.5, hitDistance - 0.3) // Keep 0.3 units away from wall
+
+          // Calculate new position at safe distance
+          finalCameraPosition = cameraTarget.clone().add(
+            rayDirection.multiplyScalar(safeDistance)
+          )
+        }
+
+        // Smooth camera movement
+        camera.position.lerp(finalCameraPosition, cameraSettings.smoothness)
+        camera.lookAt(cameraTarget)
+
+        // Update light position (no shadows)
+        directionalLight.position.set(
+          player.position.x + 30,
+          50,
+          player.position.z + 30
+        )
+
+        // ─── Animate mission cubes (rotation and floating) ───
+        const time = Date.now() * 0.001
+        cubesRef.current.forEach(({ mesh }) => {
+          if (mesh) {
+            mesh.rotation.y = time
+            if (mesh.userData.initialY === undefined) mesh.userData.initialY = mesh.position.y
+            mesh.position.y = mesh.userData.initialY + Math.sin(time * 2) * 0.2
           }
         })
-        if (playerRef.current.interactionMissionId !== (foundTarget?.mission.id || null)) {
-          playerRef.current.interactionMissionId = foundTarget?.mission.id || null
-          setInteractionTarget(foundTarget)
-        }
-      }
 
-      renderer.render(scene, camera)
+        // ─── Check for mission cube proximity (manual interaction) ───
+        if (playerRef.current && inputState.current.isLocked) {
+          let foundTarget = null
+          cubesRef.current.forEach(({ mesh, mission }) => {
+            if (!mesh || !mesh.visible) return
+            const distance = playerRef.current.position.distanceTo(mesh.position)
+            if (distance < 2) {
+              foundTarget = { mesh, mission }
+            }
+          })
+          if (playerRef.current.interactionMissionId !== (foundTarget?.mission.id || null)) {
+            playerRef.current.interactionMissionId = foundTarget?.mission.id || null
+            setInteractionTarget(foundTarget)
+          }
+        }
+      } // end noticeBoardSystem isZoomed guard
+
+      // Render via NoticeBoardSystem (Post Processing) only when zoomed
+      let rendered = false
+      if (noticeBoardSystemRef.current) {
+        rendered = noticeBoardSystemRef.current.update(0.016)
+      }
+      if (!rendered) {
+        renderer.render(scene, camera)
+      }
     }
     animate()
 
@@ -796,6 +830,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     return () => {
       cancelAnimationFrame(animationId)
       window.removeEventListener('resize', handleResize)
+      if (noticeBoardSystemRef.current) {
+        noticeBoardSystemRef.current.dispose()
+      }
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
       document.removeEventListener('pointerlockchange', onPointerLockChange)
@@ -848,6 +885,8 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
           onClose={handleModalClose}
         />
       )}
+
+
 
       {/* Interaction Prompt */}
       {interactionTarget && !showInfoModal && !showQuizModal && (
