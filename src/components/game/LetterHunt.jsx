@@ -126,11 +126,9 @@ const LetterHunt = ({ scene, playerRef }) => {
 
     useEffect(() => {
         const onDown = (e) => {
-            if (e.code === 'KeyF') keys.current.f = true;
             if (e.code === 'KeyE') keys.current.e = true;
         }
         const onUp = (e) => {
-            if (e.code === 'KeyF') keys.current.f = false;
             if (e.code === 'KeyE') keys.current.e = false;
         }
         window.addEventListener('keydown', onDown);
