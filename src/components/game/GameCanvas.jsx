@@ -886,6 +886,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         />
       )}
 
+      {/* ─── Letter Hunt Component ─── */}
+      <LetterHunt scene={sceneInstance} playerRef={playerRef} />
+
 
 
       {/* Interaction Prompt */}
