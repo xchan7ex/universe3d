@@ -250,9 +250,9 @@ const LetterHunt = ({ scene, playerRef }) => {
 
         // Initialize Letters
         const configs = [
-            { type: 'I', pos: new THREE.Vector3(-1.1, 3.0, -7.3) }, // Floating high
-            { type: 'I', pos: new THREE.Vector3(-4.1, 14.6, -10.9) },
-            { type: 'T', pos: new THREE.Vector3(4.1, 22.5, -1.5) }
+            { type: 'I', pos: new THREE.Vector3(-2.0, 4.6, -0.6) },
+            { type: 'I', pos: new THREE.Vector3(3.4, 11.4, -2.8) },
+            { type: 'T', pos: new THREE.Vector3(3.8, 18.5, -0.6) }
         ];
 
         const newLetters = configs.map(config => {
