@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
-const TreasureHunt = ({ scene, playerRef }) => {
+const TreasureHunt = ({ scene, playerRef, setMissions }) => {
     const [gameState, setGameState] = useState({
         hasKey: false,
         chestOpen: false,
@@ -251,6 +251,13 @@ const TreasureHunt = ({ scene, playerRef }) => {
                                 // Lock state immediately
                                 setGameState(prev => ({ ...prev, rewardCollected: true }));
                                 gameStateRef.current = { ...gameStateRef.current, rewardCollected: true };
+
+                                // Update Global Missions State
+                                if (setMissions) {
+                                    setMissions(prev => prev.map(m =>
+                                        m.id === 'mission-9' ? { ...m, completed: true } : m
+                                    ));
+                                }
 
                                 // Visual Collection Animation
                                 const gem = rewardRef.current;

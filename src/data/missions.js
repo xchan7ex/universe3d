@@ -402,6 +402,42 @@ const MISSIONS = [
         correctAnswer: 0
       }
     ]
+  },
+  {
+    id: 'mission-8',
+    title: 'Letter Hunt Challenge',
+    description: 'Collect hidden letters to unlock a special gift!',
+    coordinates: { x: -5.3, y: 4.5, z: 2.4 },
+    completed: false,
+    isMiniGame: true,
+    info: {
+      title: 'Letter Hunt Challenge',
+      description: 'Find all the letters in the IIT library to reveal a hidden treasure. Use your navigation skills to track them down!',
+      details: [
+        '🔍 Find 3 Hidden Letters (I, I, T)',
+        '🏗️ Navigate through multi-level floors',
+        '🎁 Unlock a special reward box',
+        '⌨️ Press E to collect letters'
+      ]
+    }
+  },
+  {
+    id: 'mission-9',
+    title: 'Treasure Hunt Adventure',
+    description: 'Find the ancient key and unlock the treasure chest!',
+    coordinates: { x: -2.1, y: 13.6, z: -5.1 },
+    completed: false,
+    isMiniGame: true,
+    info: {
+      title: 'Treasure Hunt Adventure',
+      description: 'A legendary treasure chest is hidden on campus. You must first find the golden key before you can unlock its secrets.',
+      details: [
+        '🗝️ Locate the Golden Key',
+        '📦 Find the locked Treasure Chest',
+        '💎 Claim the ancient gem reward',
+        '⌨️ Press E to interact'
+      ]
+    }
   }
 ];
 

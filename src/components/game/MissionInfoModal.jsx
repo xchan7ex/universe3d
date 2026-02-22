@@ -44,9 +44,15 @@ function MissionInfoModal({ mission, onContinue, onClose }) {
 
                 {/* Footer */}
                 <div className="mission-modal-footer">
-                    <button className="mission-modal-continue" onClick={handleContinue}>
-                        Continue to Quiz
-                    </button>
+                    {mission.isMiniGame ? (
+                        <button className="mission-modal-continue" onClick={handleClose}>
+                            Start Challenge
+                        </button>
+                    ) : (
+                        <button className="mission-modal-continue" onClick={handleContinue}>
+                            Continue to Quiz
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

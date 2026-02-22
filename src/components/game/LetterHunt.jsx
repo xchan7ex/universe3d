@@ -106,7 +106,7 @@ class LetterObject {
 }
 
 // ─── Component ───
-const LetterHunt = ({ scene, playerRef }) => {
+const LetterHunt = ({ scene, playerRef, setMissions }) => {
     const [letters, setLetters] = useState([]);
     const [foundCount, setFoundCount] = useState(0);
     const [totalLetters, setTotalLetters] = useState(0);
@@ -356,6 +356,8 @@ const LetterHunt = ({ scene, playerRef }) => {
                             if (newCount === total) {
                                 setCompleted(true);
                                 spawnRewardBook();
+                                // Mark mission as completed
+                                setMissions(prev => prev.map(m => m.id === 'mission-8' ? { ...m, completed: true } : m));
                             }
                             return newCount;
                         });
