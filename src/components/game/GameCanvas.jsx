@@ -34,6 +34,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
   const [isLocked, setIsLocked] = useState(false)
   const noticeBoardSystemRef = useRef(null)
 
+  // ─── Position Tracker (Temporary) ───
+  const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0, z: 0 })
+
   // ─── Mouse State (Pointer Lock) ───
   const inputState = useRef({
     isLocked: false
@@ -128,6 +131,98 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     let animations = {}
     let currentAction = null
     const clock = new THREE.Clock()
+
+    // ─── Door Labels ───
+    const doorLabels = []
+    const LABEL_VISIBLE_DISTANCE = 15
+
+    // ─── Create Text Texture for Door Label ───
+    function createTextTexture(text) {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+
+      canvas.width = 512
+      canvas.height = 128
+
+      // Background (dark navy - matches game UI)
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.95)'
+      ctx.beginPath()
+      ctx.roundRect(0, 0, canvas.width, canvas.height, 16)
+      ctx.fill()
+
+      // Border (blue accent - matches game theme)
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.6)'
+      ctx.lineWidth = 4
+      ctx.beginPath()
+      ctx.roundRect(2, 2, canvas.width - 4, canvas.height - 4, 14)
+      ctx.stroke()
+
+      // Text (light gray - matches UI text)
+      ctx.fillStyle = '#e2e8f0'
+      ctx.font = 'bold 48px Arial, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+
+      const texture = new THREE.CanvasTexture(canvas)
+      texture.needsUpdate = true
+      return texture
+    }
+
+    // ─── Create Door Label Mesh ───
+    function createDoorLabel(doorData) {
+      const texture = createTextTexture(doorData.name)
+
+      const geometry = new THREE.PlaneGeometry(0.6, 0.2)
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide
+      })
+
+      const label = new THREE.Mesh(geometry, material)
+
+      label.position.set(
+        doorData.position.x,
+        doorData.position.y,
+        doorData.position.z
+      )
+
+      const yRotation = (doorData.rotation.y || 0) * Math.PI / 180
+      label.rotation.y = yRotation
+
+      label.userData = { id: doorData.id, name: doorData.name }
+
+      return label
+    }
+
+    // ─── Load Door Labels from JSON ───
+    async function loadDoorLabels(buildingId) {
+      try {
+        const response = await fetch('/data/doors.json')
+        const data = await response.json()
+
+        const buildingDoors = data[buildingId] || []
+
+        buildingDoors.forEach(doorData => {
+          const label = createDoorLabel(doorData)
+          scene.add(label)
+          doorLabels.push(label)
+        })
+
+        console.log(`Loaded ${doorLabels.length} door labels for ${buildingId}`)
+      } catch (error) {
+        console.error('Error loading door labels:', error)
+      }
+    }
+
+    // ─── Update Label Visibility Based on Distance ───
+    function updateLabelVisibility(playerPos) {
+      doorLabels.forEach(label => {
+        const distance = playerPos.distanceTo(label.position)
+        label.visible = distance <= LABEL_VISIBLE_DISTANCE
+      })
+    }
 
     // ─── Spatial Grid for Collision Optimization ───
     // Instead of raycasting against ALL meshes, we only check nearby ones
@@ -483,6 +578,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         playerState.current.currentY = 0
         playerState.current.targetY = 0
 
+        // ─── Load Door Labels ───
+        loadDoorLabels(selectedBuilding)
+
         setIsLoading(false)
         setModelError(false)
         console.log('Building loaded with', collidableMeshes.length, 'meshes')
@@ -639,6 +737,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         mixer.update(delta)
       }
 
+      // ─── Update Door Label Visibility ───
+      updateLabelVisibility(player.position)
+
       // ─── Calculate Movement Direction ───
       if (!noticeBoardSystemRef.current?.isZoomed) {
         const moveDirection = new THREE.Vector3()
@@ -721,6 +822,13 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
           }
 
           player.position.y = playerState.current.currentY
+
+          // ─── Update Position Tracker ───
+          setPlayerPosition({
+            x: player.position.x.toFixed(2),
+            y: player.position.y.toFixed(2),
+            z: player.position.z.toFixed(2)
+          })
 
           // ─── Update Floor UI ───
           const detectedFloor = Math.max(0, Math.floor((player.position.y + 0.5) / 4) + 1)
@@ -844,6 +952,13 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       if (mixer) {
         mixer.stopAllAction()
       }
+      // Cleanup door labels
+      doorLabels.forEach(label => {
+        label.geometry.dispose()
+        label.material.map?.dispose()
+        label.material.dispose()
+        scene.remove(label)
+      })
       renderer.dispose()
       if (containerRef.current?.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement)
@@ -878,6 +993,43 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     <>
       <div ref={containerRef} className="game-canvas" />
 
+      {/* ─── Position Tracker (TEMPORARY) ─── */}
+      <div style={{
+        position: 'fixed',
+        top: '80px',
+        left: '20px',
+        background: 'rgba(0, 0, 0, 0.85)',
+        color: '#00ff00',
+        padding: '15px 20px',
+        borderRadius: '10px',
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        zIndex: 1000,
+        border: '2px solid #00ff00',
+        minWidth: '180px',
+        boxShadow: '0 4px 20px rgba(0, 255, 0, 0.3)'
+      }}>
+        <div style={{
+          marginBottom: '10px',
+          color: '#fff',
+          fontWeight: 'bold',
+          fontSize: '13px',
+          borderBottom: '1px solid #333',
+          paddingBottom: '8px'
+        }}>
+          📍 Position Tracker
+        </div>
+        <div style={{ marginBottom: '4px' }}>
+          X: <span style={{ color: '#ff6b6b', fontWeight: 'bold' }}>{playerPosition.x}</span>
+        </div>
+        <div style={{ marginBottom: '4px' }}>
+          Y: <span style={{ color: '#4ecdc4', fontWeight: 'bold' }}>{playerPosition.y}</span>
+        </div>
+        <div style={{ marginBottom: '10px' }}>
+          Z: <span style={{ color: '#ffe66d', fontWeight: 'bold' }}>{playerPosition.z}</span>
+        </div>
+      </div>
+
       {showInfoModal && currentMission && (
         <MissionInfoModal
           mission={currentMission}
@@ -887,12 +1039,10 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       )}
 
       {/* ─── Letter Hunt Component ─── */}
-      <LetterHunt scene={sceneInstance} playerRef={playerRef} setMissions={setMissions} />
+      <LetterHunt scene={sceneInstance} playerRef={playerRef} />
 
       {/* ─── Treasure Hunt Component ─── */}
-      <TreasureHunt scene={sceneInstance} playerRef={playerRef} setMissions={setMissions} />
-
-
+      <TreasureHunt scene={sceneInstance} playerRef={playerRef} />
 
       {/* Interaction Prompt */}
       {interactionTarget && !showInfoModal && !showQuizModal && (

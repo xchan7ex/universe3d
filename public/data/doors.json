@@ -1,0 +1,152 @@
+{
+    "gp-square": [
+        {
+            "id": "1LA",
+            "name": "1LA",
+            "position": {
+                "x": -7.81,
+                "y": 8.6,
+                "z": -6.77
+            },
+            "rotation": {
+                "y": 70
+            }
+        },
+        {
+            "id": "SRU",
+            "name": "SRU",
+            "position": {
+                "x": -4.27,
+                "y": 8.5,
+                "z": -9.202
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "Manager Centre Operations",
+            "name": "MCO",
+            "position": {
+                "x": -2.62,
+                "y": 8.5,
+                "z": -6.275
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "1LB",
+            "name": "1LB",
+            "position": {
+                "x": 0.83,
+                "y": 8.5,
+                "z": -6.253
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "1LC",
+            "name": "1LC",
+            "position": {
+                "x": 7.01,
+                "y": 8.5,
+                "z": -6.267
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "1LD",
+            "name": "1LD",
+            "position": {
+                "x": 12.48,
+                "y": 8.5,
+                "z": -6.29
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "1LE",
+            "name": "1LE",
+            "position": {
+                "x": 11.39,
+                "y": 8.5,
+                "z": -4.29
+            },
+            "rotation": {
+                "y": 180
+            }
+        },
+        {
+            "id": "1LF",
+            "name": "1LF",
+            "position": {
+                "x": 7.32,
+                "y": 8.5,
+                "z": -4.29
+            },
+            "rotation": {
+                "y": 180
+            }
+        },
+        {
+            "id": "HR Department",
+            "name": "HR Department",
+            "position": {
+                "x": -9.28,
+                "y": 8.5,
+                "z": 0.525
+            },
+            "rotation": {
+                "y": 180
+            }
+        }
+    ],
+    "spencer": [
+        {
+            "id": "1LF",
+            "name": "1LF",
+            "position": {
+                "x": 7.32,
+                "y": 8.5,
+                "z": -4.32
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "sp-tutorial1",
+            "name": "Tutorial Room 1",
+            "position": {
+                "x": -5,
+                "y": 2.2,
+                "z": 10
+            },
+            "rotation": {
+                "y": 0
+            }
+        }
+    ],
+    "ramakrishna": [
+        {
+            "id": "rk-reception",
+            "name": "Reception",
+            "position": {
+                "x": 0,
+                "y": 2.2,
+                "z": 3
+            },
+            "rotation": {
+                "y": 0
+            }
+        }
+    ]
+}
