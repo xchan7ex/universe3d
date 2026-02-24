@@ -11,6 +11,7 @@ import LoadingScreen from '../components/game/LoadingScreen'
 import MainMenu from '../components/game/MainMenu'
 import GameCanvas from '../components/game/GameCanvas'
 import GameUI from '../components/game/GameUI'
+import MISSIONS from '../data/missions'
 
 // Create context to share player data across game components
 export const PlayerContext = createContext(null)
@@ -31,6 +32,9 @@ function GamePage() {
   const [selectedBuilding, setSelectedBuilding] = useState(null)
   const [teleportTarget, setTeleportTarget] = useState(null)
   const [currentFloor, setCurrentFloor] = useState(1)
+
+  // Missions state initialized directly from data
+  const [missions, setMissions] = useState(MISSIONS)
 
   const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef(null)
@@ -164,6 +168,8 @@ function GamePage() {
               selectedBuilding={selectedBuilding}
               teleportTarget={teleportTarget}
               onFloorChange={handleFloorChange}
+              missions={missions}
+              setMissions={setMissions}
             />
             <GameUI
               playerNickname={playerNickname}
@@ -172,6 +178,8 @@ function GamePage() {
               onTeleport={handleTeleport}
               currentFloor={currentFloor}
               setCurrentFloor={setCurrentFloor}
+              missions={missions}
+              onMissionUpdate={setMissions}
             />
           </div>
         )}
