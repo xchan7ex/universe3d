@@ -107,6 +107,90 @@
             "rotation": {
                 "y": 180
             }
+        },
+        {
+            "id": "2LA",
+            "name": "2LA",
+            "position": {
+                "x": -7.45,
+                "y": 11.82,
+                "z": -6.252
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "IT Department",
+            "name": "IT Department",
+            "position": {
+                "x": -2.82,
+                "y": 11.82,
+                "z": -6.279
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "2LB",
+            "name": "2LB",
+            "position": {
+                "x": 1.94,
+                "y": 11.82,
+                "z": -6.279
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "2LC",
+            "name": "2LC",
+            "position": {
+                "x": 7.35,
+                "y": 11.82,
+                "z": -6.279
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "2LD",
+            "name": "2LD",
+            "position": {
+                "x": 11.35,
+                "y": 11.82,
+                "z": -6.279
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "2LE",
+            "name": "2LE",
+            "position": {
+                "x": 11.38,
+                "y": 11.82,
+                "z": -4.31
+            },
+            "rotation": {
+                "y": 180
+            }
+        },
+        {
+            "id": "2LF",
+            "name": "2LF",
+            "position": {
+                "x": 7.38,
+                "y": 11.82,
+                "z": -4.31
+            },
+            "rotation": {
+                "y": 180
+            }
         }
     ],
     "spencer": [
