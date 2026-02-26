@@ -191,6 +191,30 @@
             "rotation": {
                 "y": 180
             }
+        },
+        {
+            "id": "3LA",
+            "name": "3LA",
+            "position": {
+                "x": 5.944,
+                "y": 15.25,
+                "z": -2.15
+            },
+            "rotation": {
+                "y": 270
+            }
+        },
+        {
+            "id": "3LB",
+            "name": "3LB",
+            "position": {
+                "x": 5.28,
+                "y": 15.25,
+                "z": -9.79
+            },
+            "rotation": {
+                "y": 0
+            }
         }
     ],
     "spencer": [

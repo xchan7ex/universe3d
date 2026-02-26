@@ -199,10 +199,20 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     // ─── Load Door Labels from JSON ───
     async function loadDoorLabels(buildingId) {
       try {
-        const response = await fetch('/data/doors.json')
+        // Cache busting by adding timestamp
+        const response = await fetch(`/data/doors.json?v=${Date.now()}`)
         const data = await response.json()
 
         const buildingDoors = data[buildingId] || []
+
+        // Clear existing door labels from scene and array
+        doorLabels.forEach(label => {
+          label.geometry.dispose()
+          if (label.material.map) label.material.map.dispose()
+          label.material.dispose()
+          scene.remove(label)
+        })
+        doorLabels.length = 0
 
         buildingDoors.forEach(doorData => {
           const label = createDoorLabel(doorData)
@@ -580,6 +590,12 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
 
         // ─── Load Door Labels ───
         loadDoorLabels(selectedBuilding)
+        
+        // Start polling for door updates every 2 seconds
+        const doorPollingInterval = setInterval(() => {
+          loadDoorLabels(selectedBuilding)
+        }, 2000)
+        sceneRef.current.doorPollingInterval = doorPollingInterval
 
         setIsLoading(false)
         setModelError(false)
@@ -953,9 +969,12 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         mixer.stopAllAction()
       }
       // Cleanup door labels
+      if (sceneRef.current.doorPollingInterval) {
+        clearInterval(sceneRef.current.doorPollingInterval)
+      }
       doorLabels.forEach(label => {
         label.geometry.dispose()
-        label.material.map?.dispose()
+        if (label.material.map) label.material.map.dispose()
         label.material.dispose()
         scene.remove(label)
       })
