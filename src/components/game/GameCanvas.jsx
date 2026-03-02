@@ -157,12 +157,39 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       ctx.roundRect(2, 2, canvas.width - 4, canvas.height - 4, 14)
       ctx.stroke()
 
-      // Text (light gray - matches UI text)
+      // Text Formatting
       ctx.fillStyle = '#e2e8f0'
-      ctx.font = 'bold 48px Arial, sans-serif'
+      const fontSize = 42 // Slightly smaller to fit more lines
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+
+      // Word wrapping logic
+      const words = text.split(' ')
+      const lines = []
+      let currentLine = words[0]
+      const maxWidth = canvas.width - 60 // Margin
+
+      for (let i = 1; i < words.length; i++) {
+        const word = words[i]
+        const width = ctx.measureText(currentLine + " " + word).width
+        if (width < maxWidth) {
+          currentLine += " " + word
+        } else {
+          lines.push(currentLine)
+          currentLine = word
+        }
+      }
+      lines.push(currentLine)
+
+      // Render lines
+      const lineHeight = fontSize * 1.1
+      const totalHeight = lines.length * lineHeight
+      const startY = (canvas.height - totalHeight) / 2 + lineHeight / 2
+
+      lines.forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, startY + (index * lineHeight))
+      })
 
       const texture = new THREE.CanvasTexture(canvas)
       texture.needsUpdate = true

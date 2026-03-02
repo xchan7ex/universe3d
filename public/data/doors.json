@@ -215,6 +215,42 @@
             "rotation": {
                 "y": 0
             }
+        },
+        {
+            "id": "4LA",
+            "name": "4LA",
+            "position": {
+                "x": 6.026,
+                "y": 19.35,
+                "z": -2.08
+            },
+            "rotation": {
+                "y": 270
+            }
+        },
+        {
+            "id": "4LC Academic Coordinators",
+            "name": "4LC | Academic Coordinators",
+            "position": {
+                "x": -7.75,
+                "y": 19.35,
+                "z": -6.31
+            },
+            "rotation": {
+                "y": 0
+            }
+        },
+        {
+            "id": "Administrative Department",
+            "name": "Administrative Department",
+            "position": {
+                "x": -8.4,
+                "y": 19.1,
+                "z": 0.556
+            },
+            "rotation": {
+                "y": 180
+            }
         }
     ],
     "spencer": [
