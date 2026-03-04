@@ -251,6 +251,30 @@
             "rotation": {
                 "y": 180
             }
+        },
+        {
+            "id": "Administrative Department",
+            "name": "Administrative Department",
+            "position": {
+                "x": -8.4,
+                "y": 19.1,
+                "z": 0.556
+            },
+            "rotation": {
+                "y": 180
+            }
+        },
+        {
+            "id": "5LA",
+            "name": "5LA",
+            "position": {
+                "x": 6.105,
+                "y": 23.50,
+                "z": -2.05
+            },
+            "rotation": {
+                "y": 270
+            }
         }
     ],
     "spencer": [
