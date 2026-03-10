@@ -8,6 +8,7 @@ import MissionQuizModal from './MissionQuizModal'
 import LetterHunt from './LetterHunt'
 import TreasureHunt from './TreasureHunt'
 import { NoticeBoardSystem } from './noticeboard/NoticeBoardSystem'
+import doorsData from '../../data/doors.json'
 
 // Patch Three.js to use BVH-accelerated raycasting (massive speedup for complex meshes)
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
@@ -222,13 +223,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     }
 
     // ─── Load Door Labels from JSON ───
-    async function loadDoorLabels(buildingId) {
+    function loadDoorLabels(buildingId) {
       try {
-        // Cache busting by adding timestamp
-        const response = await fetch(`/data/doors.json?v=${Date.now()}`)
-        const data = await response.json()
-
-        const buildingDoors = data[buildingId] || []
+        const buildingDoors = doorsData[buildingId] || []
 
         // Clear existing door labels from scene and array
         doorLabels.forEach(label => {
@@ -616,12 +613,6 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         // ─── Load Door Labels ───
         loadDoorLabels(selectedBuilding)
 
-        // Start polling for door updates every 2 seconds
-        const doorPollingInterval = setInterval(() => {
-          loadDoorLabels(selectedBuilding)
-        }, 2000)
-        sceneRef.current.doorPollingInterval = doorPollingInterval
-
         setIsLoading(false)
         setModelError(false)
         console.log('Building loaded with', collidableMeshes.length, 'meshes')
@@ -988,9 +979,6 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         mixer.stopAllAction()
       }
       // Cleanup door labels
-      if (sceneRef.current.doorPollingInterval) {
-        clearInterval(sceneRef.current.doorPollingInterval)
-      }
       doorLabels.forEach(label => {
         label.geometry.dispose()
         if (label.material.map) label.material.map.dispose()
