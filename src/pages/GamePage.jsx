@@ -97,6 +97,17 @@ function GamePage() {
     console.log(`Player "${nickname}" ready to select building!`)
   }
 
+  // Resume music when returning to menu
+  useEffect(() => {
+    if (screenState === 'menu' && audioRef.current && !isMuted) {
+       // Since the user is returning from 'playing', they have already interacted with the app.
+       // The browser shouldn't block this.
+       audioRef.current.play().catch((err) => {
+         console.warn("Audio play prevented:", err);
+       });
+    }
+  }, [screenState, isMuted]);
+
   // Called when player selects a building and starts the game
   const handleStartGame = (buildingId) => {
     setSelectedBuilding(buildingId)
