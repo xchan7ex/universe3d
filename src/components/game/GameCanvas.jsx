@@ -859,7 +859,58 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
           } else {
             // Walk towards destination
             const directionToTarget = target.clone().sub(player.position).normalize()
-            moveDirection.copy(directionToTarget)
+            
+            // --- Obstacle Avoidance (Raycast ahead) ---
+            const scanDistance = 1.0;
+            // First check if direct path is blocked
+            const isBlockedDirect = checkWallCollision(player.position, directionToTarget, scanDistance);
+            
+            if (isBlockedDirect) {
+                // Determine left/right diversion vectors (rotate direction 90 degrees around Y axis)
+                const leftDiverge = new THREE.Vector3(-directionToTarget.z, 0, directionToTarget.x).normalize();
+                const rightDiverge = new THREE.Vector3(directionToTarget.z, 0, -directionToTarget.x).normalize();
+
+                // Scan slightly diagonal as well to find the best open path
+                const frontLeft = directionToTarget.clone().add(leftDiverge.clone().multiplyScalar(0.5)).normalize();
+                const frontRight = directionToTarget.clone().add(rightDiverge.clone().multiplyScalar(0.5)).normalize();
+
+                const blockedFL = checkWallCollision(player.position, frontLeft, scanDistance);
+                const blockedFR = checkWallCollision(player.position, frontRight, scanDistance);
+                const blockedL = checkWallCollision(player.position, leftDiverge, scanDistance * 1.2);
+                const blockedR = checkWallCollision(player.position, rightDiverge, scanDistance * 1.2);
+                
+                // Try to find the most forward-facing clear path
+                if (!blockedFL) {
+                  moveDirection.copy(frontLeft);
+                } else if (!blockedFR) {
+                  moveDirection.copy(frontRight);
+                } else if (!blockedL && !blockedR) {
+                  // Both sides clear, but front is blocked (flat wall). 
+                  // Pick the side that gets us closer to the target
+                  const testLeftPos = player.position.clone().add(leftDiverge);
+                  const testRightPos = player.position.clone().add(rightDiverge);
+                  if (testLeftPos.distanceTo(target) < testRightPos.distanceTo(target)) {
+                    moveDirection.copy(leftDiverge);
+                  } else {
+                    moveDirection.copy(rightDiverge);
+                  }
+                } else if (!blockedL) {
+                  // Slide left
+                  moveDirection.copy(leftDiverge);
+                } else if (!blockedR) {
+                  // Slide right
+                  moveDirection.copy(rightDiverge);
+                } else {
+                  // We are completely stuck (corner or narrow corridor)
+                  // Abort auto-walk to prevent infinite walking into wall
+                  moveDirection.set(0,0,0);
+                  playerState.current.autoWalkTarget = null;
+                  console.log("Auto-walk aborted - player stuck.");
+                }
+            } else {
+                // Clear path, use direct direction
+                moveDirection.copy(directionToTarget)
+            }
 
             // Force walking state
             playerState.current.sprint = false
