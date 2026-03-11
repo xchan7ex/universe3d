@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MissionPanel from './MissionPanel'
 import SearchLocation from './SearchLocation'
 import Feedback from './Feedback'
-import NavigationMessage from './NavigationMessage'
 
 // Building data for display names
 const BUILDING_INFO = {
@@ -22,16 +21,29 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
   // missions and onMissionUpdate are passed as props
   const [showSearch, setShowSearch] = useState(false)
   const [navigationMessage, setNavigationMessage] = useState(null)
-  const [navigationSide, setNavigationSide] = useState(null)
+  const [displayedMessage, setDisplayedMessage] = useState('')
+  const navigationMessageTimeout = useRef(null)
 
-  // Listen for manual walk interruptions
+  // Typewriter effect for navigation message
   useEffect(() => {
-    const handleWalkInterrupt = () => {
-      setNavigationMessage(null);
-    };
-    window.addEventListener('autowalk_interrupt', handleWalkInterrupt);
-    return () => window.removeEventListener('autowalk_interrupt', handleWalkInterrupt);
-  }, []);
+    if (!navigationMessage) {
+      setDisplayedMessage('');
+      return;
+    }
+
+    let currentIndex = 0;
+    setDisplayedMessage('');
+
+    const intervalId = setInterval(() => {
+      currentIndex++;
+      setDisplayedMessage(navigationMessage.slice(0, currentIndex));
+      if (currentIndex >= navigationMessage.length) {
+        clearInterval(intervalId);
+      }
+    }, 40); // typing speed
+
+    return () => clearInterval(intervalId);
+  }, [navigationMessage]);
 
   // Get building info based on selection
   const buildingInfo = BUILDING_INFO[selectedBuilding] || { name: 'Unknown Building', floors: 1 }
@@ -133,7 +145,6 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
 
   return (
     <div className="game-ui">
-      <NavigationMessage message={navigationMessage} side={navigationSide} />
       {/* Top Bar */}
       <div className="game-ui-top">
         <button
@@ -324,14 +335,21 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
         onTeleport={(location) => {
           console.log("Navigating to:", location);
           
+          // Set navigation message
+          const floorText = location.floor === 1 ? 'Ground Floor' : `Floor ${location.floor - 1}`;
+          setNavigationMessage(`Navigating to ${location.name}. ${location.name} is on ${floorText}`);
+          
+          // Clear previous timeout and set new one
+          if (navigationMessageTimeout.current) {
+            clearTimeout(navigationMessageTimeout.current);
+          }
+          navigationMessageTimeout.current = setTimeout(() => {
+            setNavigationMessage(null);
+          }, 5000);
+          
           if (location.floor !== currentFloor) {
             // Find the nearest stairs/elevator on the current floor (we use the spawn point)
             const currentFloorStairs = getSpawnCoordinates(currentFloor);
-            
-            // Calculate relative side
-            let side = 'ahead';
-            if (location.coordinates.x > currentFloorStairs.x) side = 'left';
-            else if (location.coordinates.x < currentFloorStairs.x) side = 'right';
             
             // Generate path for each intermediate floor
             const floorPath = [];
@@ -354,24 +372,10 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
                 finalLocation: location
               }
             });
-            
-            setNavigationMessage(`Navigating to ${location.name || 'Location'}. Location is on ${location.floor || 'current'} floor.`);
           } else {
             // Trigger auto-walk instead of instant teleport
-            let side = 'ahead';
-            const playerPos = getSpawnCoordinates(currentFloor); // Approximate using spawn, or calculate from center
-            if (location?.coordinates?.x > playerPos.x) side = 'left';
-            else if (location?.coordinates?.x < playerPos.x) side = 'right';
-            
             onTeleport?.({ ...location, walk: true });
-            
-            setNavigationMessage(`Navigating to ${location.name || 'Location'}. Location is on ${location.floor || 'current'} floor.`);
           }
-          
-          // Clear message after 8 seconds
-          setTimeout(() => {
-              setNavigationMessage(null);
-          }, 8000);
         }}
       />
 
@@ -386,6 +390,19 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
         </div>
         {/* <div className="minimap-hint">Hold M to expand</div> */}
       </div>
+
+      {/* Navigation Message */}
+      {navigationMessage && (
+        <div className="navigation-message-toast">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="nav-toast-icon">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+          <span className="typewriter-text">
+            {displayedMessage}
+            {displayedMessage.length < navigationMessage.length && <span className="typewriter-cursor">_</span>}
+          </span>
+        </div>
+      )}
 
       {/* Bottom Info */}
       <div className="game-ui-bottom">
