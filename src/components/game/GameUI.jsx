@@ -310,10 +310,32 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
         currentFloor={currentFloor}
         onTeleport={(location) => {
           console.log("Navigating to:", location);
-          // Only force instant floor change if it is actually on a different floor
+          
           if (location.floor !== currentFloor) {
-            setCurrentFloor(location.floor);
-            onTeleport?.(location);
+            // Find the nearest stairs/elevator on the current floor (we use the spawn point)
+            const currentFloorStairs = getSpawnCoordinates(currentFloor);
+            
+            // Generate path for each intermediate floor
+            const floorPath = [];
+            const dir = location.floor > currentFloor ? 1 : -1;
+            for (let f = currentFloor + dir; f !== location.floor + dir; f += dir) {
+                floorPath.push({
+                   targetFloor: f,
+                   spawn: getSpawnCoordinates(f)
+                });
+            }
+            
+            // Trigger auto-walk to current floor's stairs, with payload for cross-floor jump
+            onTeleport?.({
+              name: `Stairs to Floor ${location.floor}`,
+              floor: currentFloor,
+              coordinates: currentFloorStairs,
+              walk: true,
+              crossFloor: {
+                path: floorPath,
+                finalLocation: location
+              }
+            });
           } else {
             // Trigger auto-walk instead of instant teleport
             onTeleport?.({ ...location, walk: true });

@@ -66,6 +66,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       if (teleportTarget.walk) {
         // Set auto-walk target instead of instant teleportation
         playerState.current.autoWalkTarget = teleportTarget.coordinates
+        playerState.current.crossFloorTarget = teleportTarget.crossFloor || null;
         console.log(`Auto-walking to ${teleportTarget.name} at (${teleportTarget.coordinates.x}, ${teleportTarget.coordinates.y}, ${teleportTarget.coordinates.z})`)
       } else {
         // Instant teleportation (existing logic)
@@ -398,7 +399,8 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       currentY: 0,
       targetY: 0,
       isOnStairs: false,
-      autoWalkTarget: null
+      autoWalkTarget: null,
+      crossFloorTarget: null
     }
 
     // ─── Camera Settings ───
@@ -838,6 +840,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         ) {
           if (playerState.current.autoWalkTarget) {
             playerState.current.autoWalkTarget = null
+            playerState.current.crossFloorTarget = null
             console.log("Auto-walk cancelled by manual movement")
           }
         }
@@ -854,8 +857,42 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
 
           if (distToTarget < 0.5) {
             // Reached destination
-            playerState.current.autoWalkTarget = null
-            console.log("Auto-walk destination reached")
+            if (playerState.current.crossFloorTarget) {
+              const { path, finalLocation } = playerState.current.crossFloorTarget;
+              
+              if (path && path.length > 0) {
+                 const nextStep = path.shift();
+                 console.log(`Cross-floor auto-walk reached stairs. Jumping to Floor ${nextStep.targetFloor}`);
+                 
+                 // Tell React to update the Current Floor state in UI
+                 if (onFloorChange) {
+                   onFloorChange(nextStep.targetFloor);
+                 }
+                 
+                 // Instantly teleport player to the new floor's spawn location
+                 player.position.set(nextStep.spawn.x, nextStep.spawn.y, nextStep.spawn.z);
+                 playerState.current.currentY = nextStep.spawn.y;
+                 playerState.current.targetY = nextStep.spawn.y;
+                 
+                 if (path.length > 0) {
+                     // Walk to the next floor's stairs (in case it shifts horizontally)
+                     playerState.current.autoWalkTarget = path[0].spawn;
+                 } else {
+                     // Final floor reached. Walk to the final goal.
+                     playerState.current.autoWalkTarget = finalLocation.coordinates;
+                     playerState.current.crossFloorTarget = null;
+                     console.log(`Continuing auto-walk to ${finalLocation.name}`);
+                 }
+              } else {
+                 // Fallback if path is empty
+                 playerState.current.autoWalkTarget = finalLocation.coordinates;
+                 playerState.current.crossFloorTarget = null;
+                 console.log(`Continuing auto-walk to ${finalLocation.name}`);
+              }
+            } else {
+              playerState.current.autoWalkTarget = null
+              console.log("Auto-walk destination reached")
+            }
           } else {
             // Walk towards destination
             const directionToTarget = target.clone().sub(player.position).normalize()
@@ -905,6 +942,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
                   // Abort auto-walk to prevent infinite walking into wall
                   moveDirection.set(0,0,0);
                   playerState.current.autoWalkTarget = null;
+                  playerState.current.crossFloorTarget = null;
                   console.log("Auto-walk aborted - player stuck.");
                 }
             } else {
