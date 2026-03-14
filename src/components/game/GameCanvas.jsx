@@ -8,6 +8,7 @@ import MissionQuizModal from './MissionQuizModal'
 import LetterHunt from './LetterHunt'
 import TreasureHunt from './TreasureHunt'
 import { NoticeBoardSystem } from './noticeboard/NoticeBoardSystem'
+import doorsData from '../../data/doors.json'
 
 // Patch Three.js to use BVH-accelerated raycasting (massive speedup for complex meshes)
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
@@ -34,8 +35,6 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
   const [isLocked, setIsLocked] = useState(false)
   const noticeBoardSystemRef = useRef(null)
 
-  // ─── Position Tracker (Temporary) ───
-  const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0, z: 0 })
 
   // ─── Mouse State (Pointer Lock) ───
   const inputState = useRef({
@@ -58,22 +57,41 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     targetY: 0
   })
 
+  const teleportCameraRotationY = useRef(null)
+  const cameraSettingsRef = useRef(null)
+
   // ─── Handle Teleportation ───
   useEffect(() => {
     if (teleportTarget && playerRef.current) {
-      const { x, y, z } = teleportTarget.coordinates
-      playerRef.current.position.set(x, y, z)
+      if (teleportTarget.walk) {
+        // Set auto-walk target instead of instant teleportation
+        playerState.current.autoWalkTarget = teleportTarget.coordinates
+        playerState.current.crossFloorTarget = teleportTarget.crossFloor || null;
+        console.log(`Auto-walking to ${teleportTarget.name} at (${teleportTarget.coordinates.x}, ${teleportTarget.coordinates.y}, ${teleportTarget.coordinates.z})`)
+      } else {
+        // Instant teleportation (existing logic)
+        const { x, y, z } = teleportTarget.coordinates
+        playerRef.current.position.set(x, y, z)
 
-      playerState.current.currentY = y
-      playerState.current.targetY = y
+        playerState.current.currentY = y
+        playerState.current.targetY = y
 
-      playerState.current.moveForward = false
-      playerState.current.moveBackward = false
-      playerState.current.moveLeft = false
-      playerState.current.moveRight = false
-      playerState.current.sprint = false
+        if (teleportTarget.rotationY !== undefined) {
+          teleportCameraRotationY.current = teleportTarget.rotationY
+          playerRef.current.rotation.y = teleportTarget.rotationY
+        }
 
-      console.log(`Teleported to ${teleportTarget.name} at (${x}, ${y}, ${z})`)
+        playerState.current.moveForward = false
+        playerState.current.moveBackward = false
+        playerState.current.moveLeft = false
+        playerState.current.moveRight = false
+        playerState.current.sprint = false
+
+        // Clear any existing walk target just to be sure
+        playerState.current.autoWalkTarget = null
+
+        console.log(`Teleported to ${teleportTarget.name} at (${x}, ${y}, ${z})`)
+      }
     }
   }, [teleportTarget])
 
@@ -224,13 +242,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     }
 
     // ─── Load Door Labels from JSON ───
-    async function loadDoorLabels(buildingId) {
+    function loadDoorLabels(buildingId) {
       try {
-        // Cache busting by adding timestamp
-        const response = await fetch(`/data/doors.json?v=${Date.now()}`)
-        const data = await response.json()
-
-        const buildingDoors = data[buildingId] || []
+        const buildingDoors = doorsData[buildingId] || []
 
         // Clear existing door labels from scene and array
         doorLabels.forEach(label => {
@@ -355,10 +369,18 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     ground.position.y = -0.1
     scene.add(ground)
 
+    // ─── Building Initial Spawn Points ───
+    const buildingSpawns = {
+      'gp-square': { x: -15, y: 0, z: -4 },
+      'spencer': { x: -10, y: 0, z: -10 }, // Edit Spencer spawn here
+      'ramakrishna': { x: 5, y: 0, z: 5 }  // Edit Ramakrishna spawn here
+    }
+    const spawnPos = buildingSpawns[selectedBuilding] || { x: 0, y: 0, z: 0 }
+
     // ─── Create Player Group ───
     const player = new THREE.Group()
     playerRef.current = player
-    player.position.set(-70, 50, -4)
+    player.position.set(spawnPos.x, spawnPos.y, spawnPos.z)
     scene.add(player)
 
     // ─── Initialize Notice Board System ───
@@ -376,19 +398,24 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       sprintMultiplier: 2.5,
       currentY: 0,
       targetY: 0,
-      isOnStairs: false
+      isOnStairs: false,
+      autoWalkTarget: null,
+      crossFloorTarget: null
     }
 
     // ─── Camera Settings ───
-    const cameraSettings = {
-      distance: 1.9,
-      height: 1.3,
-      smoothness: 0.5,
-      rotationY: 0,
-      rotationX: 0.1,
-      minRotationX: -0.4,
-      maxRotationX: 0.4,
+    if (!cameraSettingsRef.current) {
+      cameraSettingsRef.current = {
+        distance: 1.9,
+        height: 1.3,
+        smoothness: 0.5,
+        rotationY: teleportCameraRotationY.current !== null ? teleportCameraRotationY.current : 0,
+        rotationX: 0.1,
+        minRotationX: -0.4,
+        maxRotationX: 0.4,
+      }
     }
+    const cameraSettings = cameraSettingsRef.current
 
     // ─── Raycaster for Collision ───
     const raycaster = new THREE.Raycaster()
@@ -471,7 +498,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         const character = gltf.scene
 
         // Scale character if needed
-        character.scale.set(1, 1, 1)
+        character.scale.set(0.8, 0.85, 0.8)
         character.position.set(0, 0, 0)
 
         // Disable shadows on character
@@ -611,18 +638,13 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
 
         scene.add(model)
 
-        player.position.set(-15, 0, -4)
-        playerState.current.currentY = 0
-        playerState.current.targetY = 0
+        // Reset player state to the spawn location
+        player.position.set(spawnPos.x, spawnPos.y, spawnPos.z)
+        playerState.current.currentY = spawnPos.y
+        playerState.current.targetY = spawnPos.y
 
         // ─── Load Door Labels ───
         loadDoorLabels(selectedBuilding)
-        
-        // Start polling for door updates every 2 seconds
-        const doorPollingInterval = setInterval(() => {
-          loadDoorLabels(selectedBuilding)
-        }, 2000)
-        sceneRef.current.doorPollingInterval = doorPollingInterval
 
         setIsLoading(false)
         setModelError(false)
@@ -774,6 +796,11 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     const animate = () => {
       animationId = requestAnimationFrame(animate)
 
+      if (teleportCameraRotationY.current !== null) {
+        cameraSettings.rotationY = teleportCameraRotationY.current
+        teleportCameraRotationY.current = null
+      }
+
       // Update animation mixer
       const delta = clock.getDelta()
       if (mixer) {
@@ -803,6 +830,130 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         if (playerState.current.moveBackward) moveDirection.sub(forward)
         if (playerState.current.moveLeft) moveDirection.sub(right)
         if (playerState.current.moveRight) moveDirection.add(right)
+
+        // Reset auto walk if player provides manual input
+        if (
+          playerState.current.moveForward ||
+          playerState.current.moveBackward ||
+          playerState.current.moveLeft ||
+          playerState.current.moveRight
+        ) {
+          if (playerState.current.autoWalkTarget) {
+            playerState.current.autoWalkTarget = null
+            playerState.current.crossFloorTarget = null
+            console.log("Auto-walk cancelled by manual movement")
+          }
+        }
+
+        // Apply auto-walk if target exists and no manual movement is happening
+        if (playerState.current.autoWalkTarget) {
+          const target = new THREE.Vector3(
+            playerState.current.autoWalkTarget.x,
+            player.position.y, // Ignore Y for horizontal distance calculation
+            playerState.current.autoWalkTarget.z
+          )
+
+          const distToTarget = player.position.distanceTo(target)
+
+          if (distToTarget < 0.5) {
+            // Reached destination
+            if (playerState.current.crossFloorTarget) {
+              const { path, finalLocation } = playerState.current.crossFloorTarget;
+              
+              if (path && path.length > 0) {
+                 const nextStep = path.shift();
+                 console.log(`Cross-floor auto-walk reached stairs. Jumping to Floor ${nextStep.targetFloor}`);
+                 
+                 // Tell React to update the Current Floor state in UI
+                 if (onFloorChange) {
+                   onFloorChange(nextStep.targetFloor);
+                 }
+                 
+                 // Instantly teleport player to the new floor's spawn location
+                 player.position.set(nextStep.spawn.x, nextStep.spawn.y, nextStep.spawn.z);
+                 playerState.current.currentY = nextStep.spawn.y;
+                 playerState.current.targetY = nextStep.spawn.y;
+                 
+                 if (path.length > 0) {
+                     // Walk to the next floor's stairs (in case it shifts horizontally)
+                     playerState.current.autoWalkTarget = path[0].spawn;
+                 } else {
+                     // Final floor reached. Walk to the final goal.
+                     playerState.current.autoWalkTarget = finalLocation.coordinates;
+                     playerState.current.crossFloorTarget = null;
+                     console.log(`Continuing auto-walk to ${finalLocation.name}`);
+                 }
+              } else {
+                 // Fallback if path is empty
+                 playerState.current.autoWalkTarget = finalLocation.coordinates;
+                 playerState.current.crossFloorTarget = null;
+                 console.log(`Continuing auto-walk to ${finalLocation.name}`);
+              }
+            } else {
+              playerState.current.autoWalkTarget = null
+              console.log("Auto-walk destination reached")
+            }
+          } else {
+            // Walk towards destination
+            const directionToTarget = target.clone().sub(player.position).normalize()
+            
+            // --- Obstacle Avoidance (Raycast ahead) ---
+            const scanDistance = 1.0;
+            // First check if direct path is blocked
+            const isBlockedDirect = checkWallCollision(player.position, directionToTarget, scanDistance);
+            
+            if (isBlockedDirect) {
+                // Determine left/right diversion vectors (rotate direction 90 degrees around Y axis)
+                const leftDiverge = new THREE.Vector3(-directionToTarget.z, 0, directionToTarget.x).normalize();
+                const rightDiverge = new THREE.Vector3(directionToTarget.z, 0, -directionToTarget.x).normalize();
+
+                // Scan slightly diagonal as well to find the best open path
+                const frontLeft = directionToTarget.clone().add(leftDiverge.clone().multiplyScalar(0.5)).normalize();
+                const frontRight = directionToTarget.clone().add(rightDiverge.clone().multiplyScalar(0.5)).normalize();
+
+                const blockedFL = checkWallCollision(player.position, frontLeft, scanDistance);
+                const blockedFR = checkWallCollision(player.position, frontRight, scanDistance);
+                const blockedL = checkWallCollision(player.position, leftDiverge, scanDistance * 1.2);
+                const blockedR = checkWallCollision(player.position, rightDiverge, scanDistance * 1.2);
+                
+                // Try to find the most forward-facing clear path
+                if (!blockedFL) {
+                  moveDirection.copy(frontLeft);
+                } else if (!blockedFR) {
+                  moveDirection.copy(frontRight);
+                } else if (!blockedL && !blockedR) {
+                  // Both sides clear, but front is blocked (flat wall). 
+                  // Pick the side that gets us closer to the target
+                  const testLeftPos = player.position.clone().add(leftDiverge);
+                  const testRightPos = player.position.clone().add(rightDiverge);
+                  if (testLeftPos.distanceTo(target) < testRightPos.distanceTo(target)) {
+                    moveDirection.copy(leftDiverge);
+                  } else {
+                    moveDirection.copy(rightDiverge);
+                  }
+                } else if (!blockedL) {
+                  // Slide left
+                  moveDirection.copy(leftDiverge);
+                } else if (!blockedR) {
+                  // Slide right
+                  moveDirection.copy(rightDiverge);
+                } else {
+                  // We are completely stuck (corner or narrow corridor)
+                  // Abort auto-walk to prevent infinite walking into wall
+                  moveDirection.set(0,0,0);
+                  playerState.current.autoWalkTarget = null;
+                  playerState.current.crossFloorTarget = null;
+                  console.log("Auto-walk aborted - player stuck.");
+                }
+            } else {
+                // Clear path, use direct direction
+                moveDirection.copy(directionToTarget)
+            }
+
+            // Force walking state
+            playerState.current.sprint = false
+          }
+        }
 
         // ─── Determine Animation State ───
         const isMoving = moveDirection.length() > 0
@@ -851,6 +1002,15 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
           while (rotDiff > Math.PI) rotDiff -= Math.PI * 2
           while (rotDiff < -Math.PI) rotDiff += Math.PI * 2
           player.rotation.y += rotDiff * 0.15
+
+          // Navigate camera behind player when auto-walking
+          if (playerState.current.autoWalkTarget) {
+            const targetCameraRot = player.rotation.y + Math.PI;
+            let camRotDiff = targetCameraRot - cameraSettings.rotationY;
+            while (camRotDiff > Math.PI) camRotDiff -= Math.PI * 2;
+            while (camRotDiff < -Math.PI) camRotDiff += Math.PI * 2;
+            cameraSettings.rotationY += camRotDiff * 0.05;
+          }
         }
 
         // ─── Ground Detection ───
@@ -866,12 +1026,6 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
 
           player.position.y = playerState.current.currentY
 
-          // ─── Update Position Tracker ───
-          setPlayerPosition({
-            x: player.position.x.toFixed(2),
-            y: player.position.y.toFixed(2),
-            z: player.position.z.toFixed(2)
-          })
 
           // ─── Update Floor UI ───
           const detectedFloor = Math.max(0, Math.floor((player.position.y + 0.5) / 4) + 1)
@@ -920,8 +1074,12 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
           )
         }
 
-        // Smooth camera movement
-        camera.position.lerp(finalCameraPosition, cameraSettings.smoothness)
+        // Smooth camera movement, but jump instantly if teleported
+        if (teleportCameraRotationY.current !== null) {
+          camera.position.copy(finalCameraPosition)
+        } else {
+          camera.position.lerp(finalCameraPosition, cameraSettings.smoothness)
+        }
         camera.lookAt(cameraTarget)
 
         // Update light position (no shadows)
@@ -996,9 +1154,6 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
         mixer.stopAllAction()
       }
       // Cleanup door labels
-      if (sceneRef.current.doorPollingInterval) {
-        clearInterval(sceneRef.current.doorPollingInterval)
-      }
       doorLabels.forEach(label => {
         label.geometry.dispose()
         if (label.material.map) label.material.map.dispose()
@@ -1039,42 +1194,6 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     <>
       <div ref={containerRef} className="game-canvas" />
 
-      {/* ─── Position Tracker (TEMPORARY) ─── */}
-      <div style={{
-        position: 'fixed',
-        top: '80px',
-        left: '20px',
-        background: 'rgba(0, 0, 0, 0.85)',
-        color: '#00ff00',
-        padding: '15px 20px',
-        borderRadius: '10px',
-        fontFamily: 'monospace',
-        fontSize: '14px',
-        zIndex: 1000,
-        border: '2px solid #00ff00',
-        minWidth: '180px',
-        boxShadow: '0 4px 20px rgba(0, 255, 0, 0.3)'
-      }}>
-        <div style={{
-          marginBottom: '10px',
-          color: '#fff',
-          fontWeight: 'bold',
-          fontSize: '13px',
-          borderBottom: '1px solid #333',
-          paddingBottom: '8px'
-        }}>
-          📍 Position Tracker
-        </div>
-        <div style={{ marginBottom: '4px' }}>
-          X: <span style={{ color: '#ff6b6b', fontWeight: 'bold' }}>{playerPosition.x}</span>
-        </div>
-        <div style={{ marginBottom: '4px' }}>
-          Y: <span style={{ color: '#4ecdc4', fontWeight: 'bold' }}>{playerPosition.y}</span>
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          Z: <span style={{ color: '#ffe66d', fontWeight: 'bold' }}>{playerPosition.z}</span>
-        </div>
-      </div>
 
       {showInfoModal && currentMission && (
         <MissionInfoModal
@@ -1108,13 +1227,28 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
 
       {isLoading && (
         <div className="model-loading-overlay">
-          <div className="model-loading-content">
-            <div className="model-loading-spinner"></div>
-            <p>Loading {selectedBuilding?.replace('-', ' ').toUpperCase() || 'Building'}...</p>
-            <div className="model-loading-bar">
-              <div className="model-loading-fill" style={{ width: `${loadingProgress}%` }}></div>
+          <div className="model-loading-glass">
+            <div className="model-loading-spinner-wrapper">
+              <div className="spinner-ring outer-ring"></div>
+              <div className="spinner-ring inner-ring"></div>
+              <div className="model-loading-percent">{loadingProgress.toFixed(0)}%</div>
             </div>
-            <span className="model-loading-percent">{loadingProgress.toFixed(0)}%</span>
+            
+            <div className="model-loading-info">
+              <h2 className="loading-title">Loading Environment</h2>
+              <p className="loading-subtitle">{selectedBuilding?.replace('-', ' ').toUpperCase() || 'Building'}</p>
+            </div>
+            
+            <div className="model-loading-bar-container">
+              <div className="model-loading-bar-track">
+                <div 
+                  className="model-loading-bar-fill" 
+                  style={{ width: `${loadingProgress}%` }}
+                >
+                  <div className="glow-edge"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

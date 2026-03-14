@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MissionPanel from './MissionPanel'
 import SearchLocation from './SearchLocation'
@@ -20,6 +20,30 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
   const [isMinimapExpanded, setIsMinimapExpanded] = useState(false)
   // missions and onMissionUpdate are passed as props
   const [showSearch, setShowSearch] = useState(false)
+  const [navigationMessage, setNavigationMessage] = useState(null)
+  const [displayedMessage, setDisplayedMessage] = useState('')
+  const navigationMessageTimeout = useRef(null)
+
+  // Typewriter effect for navigation message
+  useEffect(() => {
+    if (!navigationMessage) {
+      setDisplayedMessage('');
+      return;
+    }
+
+    let currentIndex = 0;
+    setDisplayedMessage('');
+
+    const intervalId = setInterval(() => {
+      currentIndex++;
+      setDisplayedMessage(navigationMessage.slice(0, currentIndex));
+      if (currentIndex >= navigationMessage.length) {
+        clearInterval(intervalId);
+      }
+    }, 40); // typing speed
+
+    return () => clearInterval(intervalId);
+  }, [navigationMessage]);
 
   // Get building info based on selection
   const buildingInfo = BUILDING_INFO[selectedBuilding] || { name: 'Unknown Building', floors: 1 }
@@ -59,10 +83,10 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
     navigate('/')
   }
 
-  // Building spawn points (x/z) for fast travel
+  // Building spawn points (x/z) for fast travel and floor navigation
   const BUILDING_SPAWNS = {
-    'spencer': { x: -10, z: -10 },
-    'ramakrishna': { x: -10, z: -10 }
+    'spencer': { x: -10, z: -10 }, // Edit Spencer spawn here
+    'ramakrishna': { x: 5, z: 5 }  // Edit Ramakrishna spawn here
   }
 
   // Specific spawn points for each floor of GP Square
@@ -303,16 +327,55 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
         </div>
       )}
 
-      {/* Search Location Modal */}
       <SearchLocation
         isOpen={showSearch}
         onClose={() => setShowSearch(false)}
         selectedBuilding={selectedBuilding}
         currentFloor={currentFloor}
         onTeleport={(location) => {
-          console.log("Teleporting to:", location);
-          setCurrentFloor(location.floor);
-          onTeleport?.(location);
+          console.log("Navigating to:", location);
+          
+          // Set navigation message
+          const floorText = location.floor === 1 ? 'Ground Floor' : `Floor ${location.floor - 1}`;
+          setNavigationMessage(`Navigating to ${location.name}. Your location is on ${floorText}`);
+          
+          // Clear previous timeout and set new one
+          if (navigationMessageTimeout.current) {
+            clearTimeout(navigationMessageTimeout.current);
+          }
+          navigationMessageTimeout.current = setTimeout(() => {
+            setNavigationMessage(null);
+          }, 5000);
+          
+          if (location.floor !== currentFloor) {
+            // Find the nearest stairs/elevator on the current floor (we use the spawn point)
+            const currentFloorStairs = getSpawnCoordinates(currentFloor);
+            
+            // Generate path for each intermediate floor
+            const floorPath = [];
+            const dir = location.floor > currentFloor ? 1 : -1;
+            for (let f = currentFloor + dir; f !== location.floor + dir; f += dir) {
+                floorPath.push({
+                   targetFloor: f,
+                   spawn: getSpawnCoordinates(f)
+                });
+            }
+            
+            // Trigger auto-walk to current floor's stairs, with payload for cross-floor jump
+            onTeleport?.({
+              name: `Stairs to Floor ${location.floor}`,
+              floor: currentFloor,
+              coordinates: currentFloorStairs,
+              walk: true,
+              crossFloor: {
+                path: floorPath,
+                finalLocation: location
+              }
+            });
+          } else {
+            // Trigger auto-walk instead of instant teleport
+            onTeleport?.({ ...location, walk: true });
+          }
         }}
       />
 
@@ -327,6 +390,19 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTeleport, cu
         </div>
         {/* <div className="minimap-hint">Hold M to expand</div> */}
       </div>
+
+      {/* Navigation Message */}
+      {navigationMessage && (
+        <div className="navigation-message-toast">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="nav-toast-icon">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+          <span className="typewriter-text">
+            {displayedMessage}
+            {displayedMessage.length < navigationMessage.length && <span className="typewriter-cursor">_</span>}
+          </span>
+        </div>
+      )}
 
       {/* Bottom Info */}
       <div className="game-ui-bottom">
