@@ -94,7 +94,7 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
                         rows={4}
                         required
                     />
-
+ 
                     <div className="feedback-actions">
                         <button
                             type="submit"
