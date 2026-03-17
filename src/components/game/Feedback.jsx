@@ -13,7 +13,7 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('https://feedback-three-orpin.vercel.app/api/feedback', {
+            const response = await fetch('https://feedback-git-main-xchan7exs-projects.vercel.app', {
 
                 method: 'POST',
                 headers: {
