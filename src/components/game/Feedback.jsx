@@ -13,7 +13,7 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/feedback', {
+            const response = await fetch('https://dynamic-fascination-production-ae99.up.railway.app/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
