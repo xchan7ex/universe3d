@@ -256,14 +256,18 @@ const FormalTrousers = () => (
     <rect x="37" y="12" width="1" height="46" fill="#283593" />
   </svg>
 );
-const LongDressBottom = () => (
-  // Flowy long skirt
+const LongDress = () => (
+  // Flowy long skirt + elegant top (Full Body)
   <svg viewBox="0 0 64 64" width="100%" height="100%">
-    <path d="M 22 6 L 42 6 L 52 58 L 12 58 Z" fill="#d8bfd8" />
+    <path d="M 28 15 L 36 15 L 42 35 L 22 35 Z" fill="#d8bfd8" /> {/* Top half */}
+    <path d="M 22 35 L 42 35 L 52 58 L 12 58 Z" fill="#d8bfd8" /> {/* Bottom half */}
+    {/* Straps */}
+    <rect x="28" y="10" width="2" height="5" fill="#cca8cc" />
+    <rect x="34" y="10" width="2" height="5" fill="#cca8cc" />
     {/* Drapery lines */}
-    <path d="M 28 6 Q 30 30 24 58" stroke="#cca8cc" strokeWidth="1.5" fill="none" />
-    <path d="M 36 6 Q 34 30 40 58" stroke="#cca8cc" strokeWidth="1.5" fill="none" />
-    <rect x="22" y="6" width="20" height="4" fill="#cca8cc" />
+    <path d="M 28 35 Q 30 45 24 58" stroke="#cca8cc" strokeWidth="1.5" fill="none" />
+    <path d="M 36 35 Q 34 45 40 58" stroke="#cca8cc" strokeWidth="1.5" fill="none" />
+    <rect x="22" y="33" width="20" height="4" fill="#cca8cc" />
   </svg>
 );
 const FemaleJeans = () => (
@@ -382,11 +386,11 @@ const FEMALE_DATA = {
     { id: 'f_top_3', Comp: FemaleSleeveless },
     { id: 'f_top_4', Comp: OffShoulder }, 
     { id: 'f_top_5', Comp: FemaleTShirt },
-    { id: 'f_top_6', Comp: CropTop }
+    { id: 'f_top_6', Comp: CropTop },
+    { id: 'f_top_7', Comp: LongDress }
   ],
   bottoms: [
     { id: 'f_bot_1', Comp: FormalTrousers },
-    { id: 'f_bot_2', Comp: LongDressBottom },
     { id: 'f_bot_3', Comp: FemaleJeans },
     { id: 'f_bot_4', Comp: ShortSkirt },
     { id: 'f_bot_5', Comp: DenimShorts },
@@ -402,9 +406,11 @@ const FEMALE_DATA = {
 // --- VALIDATION RULES ---
 const RESTRICTED_MALE = ['m_top_5', 'm_top_6', 'm_bot_4', 'm_bot_5', 'm_bot_1', 'm_foot_3'];
 const RESTRICTED_FEMALE = ['f_top_3', 'f_top_4', 'f_top_6', 'f_bot_4', 'f_bot_5', 'f_bot_6', 'f_foot_3'];
+// --- FULL BODY LOGIC ---
+const FULL_BODY_TOPS = ['f_top_1', 'f_top_7']; // Frock, Long Dress
 
 const validateOutfit = (gender, selectedOutfit) => {
-  const selectedItems = [selectedOutfit.top, selectedOutfit.bottom, selectedOutfit.footwear];
+  const selectedItems = [selectedOutfit.top, selectedOutfit.bottom, selectedOutfit.footwear].filter(Boolean);
   const restrictedList = gender === 'male' ? RESTRICTED_MALE : RESTRICTED_FEMALE;
   
   // Check if any selected item exists in the restricted list
@@ -460,15 +466,30 @@ const DressCodeSelection = ({ onComplete }) => {
   };
 
   const handleSelect = (category, id) => {
-    setSelections(prev => ({
-      ...prev,
-      [gender]: {
-        ...prev[gender],
-        [category]: id
+    // Check if selecting a bottom while a full-body outfit is active
+    if (category === 'bottom' && gender === 'female' && FULL_BODY_TOPS.includes(selections.female.top)) {
+      setWarningMessage("You cannot select a bottom with a frock or long dress.");
+      setShowWarning(true);
+      return; 
+    }
+
+    setSelections(prev => {
+      const nextState = { 
+        ...prev,
+        [gender]: { ...prev[gender], [category]: id }
+      };
+
+      // Dependency resolution
+      if (gender === 'female' && category === 'top') {
+        if (FULL_BODY_TOPS.includes(id)) {
+          nextState.female.bottom = null; // Clear bottom when full body top selected
+        } else if (!FULL_BODY_TOPS.includes(id) && nextState.female.bottom === null) {
+          nextState.female.bottom = 'f_bot_1'; // Re-establish default bottom when switching to normal top
+        }
       }
-    }));
-    // Optionally check validation instantly on click, but prompt says: 
-    // "When user clicks 'Next': Call validateOutfit... If invalid -> show popup"
+
+      return nextState;
+    });
   };
 
   const handleNextClick = () => {
@@ -502,6 +523,8 @@ const DressCodeSelection = ({ onComplete }) => {
   const getBottomGridClass = () => {
     return 'grid-3x2';
   };
+
+  const isBottomsDisabled = gender === 'female' && FULL_BODY_TOPS.includes(activeSelections.top);
 
   return (
     <div className="dresscode-container">
@@ -539,8 +562,11 @@ const DressCodeSelection = ({ onComplete }) => {
             </div>
 
             {/* BOTTOMS PANEL */}
-            <div className="panel">
+            <div className={`panel ${isBottomsDisabled ? 'disabled-panel' : ''}`}>
               <h3 className="panel-title">{gender === 'male' ? "Men's Bottoms" : "Women's Bottoms"}</h3>
+              {isBottomsDisabled && (
+                <p className="helper-text">Frock or long dress already covers full outfit. Bottom selection is not required.</p>
+              )}
               <div className={getBottomGridClass()}>
                 {currentData.bottoms.map(item => (
                   <div 
@@ -624,7 +650,9 @@ const DressCodeSelection = ({ onComplete }) => {
           
           <div className="mini-thumbnails">
             <div className="thumbnail"><SelectedTop /></div>
-            <div className="thumbnail"><SelectedBottom /></div>
+            <div className="thumbnail">
+              {activeSelections.bottom ? <SelectedBottom /> : null}
+            </div>
             <div className="thumbnail"><SelectedFootwear /></div>
           </div>
 

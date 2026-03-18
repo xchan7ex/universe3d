@@ -9,8 +9,8 @@ const COLORS = {
   m_foot_1: '#F5F5F5', m_foot_2: '#4E342E', m_foot_3: '#26C6DA',
   // Female
   f_top_1: '#F48FB1', f_top_2: '#FFFFFF', f_top_3: '#E53935', 
-  f_top_4: '#CE93D8', f_top_5: '#4A90D9', f_top_6: '#FFCC80',
-  f_bot_1: '#212121', f_bot_2: '#7986CB', f_bot_3: '#1565C0', 
+  f_top_4: '#CE93D8', f_top_5: '#4A90D9', f_top_6: '#FFCC80', f_top_7: '#7986CB',
+  f_bot_1: '#212121', f_bot_3: '#1565C0', 
   f_bot_4: '#F48FB1', f_bot_5: '#29B6F6', f_bot_6: '#1976D2',
   f_foot_1: '#212121', f_foot_2: '#F5F5F5', f_foot_3: '#BCAAA4'
 };
@@ -125,12 +125,6 @@ const renderBottomLayer = (id, color) => {
       return (
         <g fill={color}>
           <path d="M 30,100 L 70,100 L 66,180 L 56,180 L 52,110 L 48,110 L 44,180 L 34,180 Z" />
-        </g>
-      );
-    case 'f_bot_2': // Long Dress Skirt
-      return (
-        <g fill={color}>
-          <path d="M 30,105 L 70,105 L 85,180 L 15,180 Z" />
         </g>
       );
     case 'f_bot_3': // Female Jeans
@@ -266,6 +260,17 @@ const renderTopLayer = (id, color) => {
       return (
         <g fill={color}>
           <path d="M 34,48 L 66,48 Q 62,65 65,80 L 35,80 Q 38,65 34,48 Z" />
+        </g>
+      );
+    case 'f_top_7': // Long Dress (Full Body)
+      return (
+        <g fill={color}>
+          {/* Top half: elegant sleeveless style */}
+          <path d="M 36,48 L 64,48 Q 58,75 70,110 L 30,110 Q 42,75 36,48 Z" />
+          <rect x="36" y="48" width="3" height="7" />
+          <rect x="61" y="48" width="3" height="7" />
+          {/* Bottom half: Floor length flowy skirt */}
+          <path d="M 30,105 L 70,105 L 85,180 L 15,180 Z" />
         </g>
       );
     default:
