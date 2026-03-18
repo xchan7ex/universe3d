@@ -13,8 +13,7 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/feedback', {
-
+            const response = await fetch('http://localhost:5000/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,7 +93,7 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
                         rows={4}
                         required
                     />
- 
+
                     <div className="feedback-actions">
                         <button
                             type="submit"
