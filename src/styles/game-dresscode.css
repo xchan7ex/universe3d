@@ -88,7 +88,6 @@
   gap: 1.2rem;
 }
 
-/* Bottom grid for women's bottoms (3 items) */
 .grid-3x1-stretch {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -218,135 +217,31 @@
   box-shadow: 0 2px 10px rgba(2, 136, 209, 0.4);
 }
 
-/* AVATAR BUILDER */
+/* AVATAR BUILDER: SVG CANVASES */
 .avatar-wrapper {
   position: relative;
-  width: 120px;
-  height: 200px;
+  width: 150px;
+  height: 300px;
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
-.avatar-dummy {
-  position: relative;
+.avatar-preview-canvas {
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
 }
 
-/* MALE/DEFAULT Dummy Shapes */
-.dummy-head {
-  position: absolute;
-  top: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 40px; height: 40px;
-  background: #ffccbc; /* Skin tone */
-  border-radius: 50%;
-  z-index: 5;
-  box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1);
-}
-.dummy-head::before {
-  content: ""; position: absolute; top: 15px; left: -4px; width: 6px; height: 10px; border-radius: 4px; background: #e5b3a3;
-}
-.dummy-head::after {
-  content: ""; position: absolute; top: 15px; right: -4px; width: 6px; height: 10px; border-radius: 4px; background: #e5b3a3;
+@keyframes fadeInLayer {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.dummy-neck {
-  position: absolute;
-  top: 36px; left: 50%;
-  transform: translateX(-50%);
-  width: 14px; height: 10px;
-  background: #e5b3a3;
-  z-index: 4;
+.layer-animated {
+  animation: fadeInLayer 150ms ease-in-out forwards;
 }
-
-/* Male Body */
-.dummy-arms {
-  position: absolute;
-  top: 45px; left: 50%;
-  transform: translateX(-50%);
-  width: 90px; height: 75px;
-  background: #ffccbc;
-  border-radius: 20px;
-  z-index: 2;
-}
-
-.dummy-arms::before, .dummy-arms::after {
-  content: "";
-  position: absolute;
-  bottom: -25px;
-  width: 18px; height: 22px;
-  background: #ffccbc;
-  border-radius: 10px;
-  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1);
-}
-.dummy-arms::before { left: -2px; }
-.dummy-arms::after { right: -2px; }
-
-.dummy-legs {
-  position: absolute;
-  top: 100px; left: 50%;
-  transform: translateX(-50%);
-  width: 44px; height: 85px;
-  background: transparent;
-}
-.dummy-legs::before, .dummy-legs::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 18px; height: 85px;
-  background: #ffccbc;
-}
-.dummy-legs::before { left: 1px; }
-.dummy-legs::after { right: 1px; }
-
-/* FEMALE Body specific overrides */
-.female-avatar .dummy-head {
-  width: 38px; height: 38px;
-}
-/* Hair definition */
-.female-avatar .dummy-hair {
-  position: absolute;
-  top: -4px; left: 50%;
-  transform: translateX(-50%);
-  width: 46px; height: 50px;
-  background: #5d4037; /* Brown hair */
-  border-radius: 20px 20px 0 0;
-  z-index: 4; /* Behind face slightly if we just want a bob cut */
-}
-/* Let's make hair completely fall down */
-.female-avatar .dummy-hair::after {
-  content: "";
-  position: absolute;
-  top: 20px; left: -2px;
-  width: 50px; height: 35px;
-  background: #5d4037;
-  border-radius: 10px;
-  z-index: 3;
-}
-
-/* Slimmer torso arms */
-.female-avatar .dummy-arms {
-  width: 76px; height: 75px;
-  border-radius: 16px;
-}
-
-.female-avatar .dummy-legs {
-  width: 40px; 
-}
-.female-avatar .dummy-legs::before, .female-avatar .dummy-legs::after {
-  width: 16px;
-}
-
-/* SVG Layers */
-.avatar-layer {
-  position: absolute;
-  width: 100%; height: 100%;
-  top: 0; left: 0;
-}
-
-.avatar-top { top: 40px; height: 75px; z-index: 6; transform: scale(1.4); }
-.avatar-bottom { top: 100px; height: 85px; z-index: 5; transform: scale(1.1); }
-.avatar-footwear { top: 175px; height: 35px; z-index: 7; transform: scale(1.2); }
 
 /* Bottom Preview Section */
 .preview-text {
@@ -424,4 +319,86 @@
   .top-row {
     flex-direction: column;
   }
+}
+
+/* VALIDATION MODAL */
+.validation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInLayer 200ms ease forwards;
+}
+
+.validation-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: scale(0.95);
+  animation: popIn 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  color: #333;
+}
+
+@keyframes popIn {
+  to { transform: scale(1); }
+}
+
+.validation-modal-icon {
+  color: #e74c3c;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.validation-modal-icon svg {
+  width: 60px;
+  height: 60px;
+}
+
+.validation-modal-title {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.validation-modal-message {
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.validation-modal-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.validation-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+}
+
+.validation-modal-btn:active {
+  transform: translateY(0);
 }

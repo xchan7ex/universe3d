@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/game-dresscode.css';
+import AvatarPreview from './AvatarPreview';
 
 // ==========================================
 // 1. MALE SVGS
@@ -398,9 +399,32 @@ const FEMALE_DATA = {
   ]
 };
 
+// --- VALIDATION RULES ---
+const RESTRICTED_MALE = ['m_top_5', 'm_top_6', 'm_bot_4', 'm_bot_5', 'm_bot_1', 'm_foot_3'];
+const RESTRICTED_FEMALE = ['f_top_3', 'f_top_4', 'f_top_6', 'f_bot_4', 'f_bot_5', 'f_bot_6', 'f_foot_3'];
+
+const validateOutfit = (gender, selectedOutfit) => {
+  const selectedItems = [selectedOutfit.top, selectedOutfit.bottom, selectedOutfit.footwear];
+  const restrictedList = gender === 'male' ? RESTRICTED_MALE : RESTRICTED_FEMALE;
+  
+  // Check if any selected item exists in the restricted list
+  const hasViolation = selectedItems.some(item => restrictedList.includes(item));
+  
+  if (hasViolation) {
+    return {
+      isValid: false,
+      message: `Selected outfit violates campus dress code for ${gender} students. Please choose appropriate clothing.`
+    };
+  }
+  
+  return { isValid: true, message: "" };
+};
+
 const DressCodeSelection = ({ onComplete }) => {
   const [gender, setGender] = useState('male');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
   
   // Selection state structured by gender
   const [selections, setSelections] = useState({
@@ -443,6 +467,8 @@ const DressCodeSelection = ({ onComplete }) => {
         [category]: id
       }
     }));
+    // Optionally check validation instantly on click, but prompt says: 
+    // "When user clicks 'Next': Call validateOutfit... If invalid -> show popup"
   };
 
   const handleNextClick = () => {
@@ -453,6 +479,16 @@ const DressCodeSelection = ({ onComplete }) => {
       bottom: activeSelections.bottom,
       footwear: activeSelections.footwear
     };
+
+    // Run Validation
+    const validationResult = validateOutfit(gender, activeSelections);
+    
+    if (!validationResult.isValid) {
+      setWarningMessage(validationResult.message);
+      setShowWarning(true);
+      return; // Stop navigation
+    }
+
     if (onComplete) onComplete(finalConfig);
   };
 
@@ -576,19 +612,12 @@ const DressCodeSelection = ({ onComplete }) => {
           </div>
 
           <div className="avatar-wrapper">
-            <div className={`avatar-dummy ${gender === 'female' ? 'female-avatar' : ''}`}>
-              {/* Dummy body parts underneath */}
-              <div className="dummy-hair"></div> {/* Only visible via CSS when female */}
-              <div className="dummy-head"></div>
-              <div className="dummy-neck"></div>
-              <div className="dummy-arms"></div>
-              <div className="dummy-legs"></div>
-              
-              {/* Overlay the chosen SVGs */}
-              <div className="avatar-layer avatar-footwear"><SelectedFootwear /></div>
-              <div className="avatar-layer avatar-bottom"><SelectedBottom /></div>
-              <div className="avatar-layer avatar-top"><SelectedTop /></div>
-            </div>
+            <AvatarPreview 
+              gender={gender} 
+              topItem={activeSelections.top} 
+              bottomItem={activeSelections.bottom} 
+              footwearItem={activeSelections.footwear} 
+            />
           </div>
 
           <p className="preview-text">Preview</p>
@@ -604,6 +633,24 @@ const DressCodeSelection = ({ onComplete }) => {
       </div>
 
       <button className="next-btn" onClick={handleNextClick}>NEXT</button>
+
+      {/* Validation Warning Modal */}
+      {showWarning && (
+        <div className="validation-modal-overlay">
+          <div className="validation-modal">
+            <div className="validation-modal-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h2 className="validation-modal-title">Dress Code Violation</h2>
+            <p className="validation-modal-message">{warningMessage}</p>
+            <button className="validation-modal-btn" onClick={() => setShowWarning(false)}>OK</button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
