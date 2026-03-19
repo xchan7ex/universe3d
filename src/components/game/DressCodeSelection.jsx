@@ -404,33 +404,94 @@ const FEMALE_DATA = {
 };
 
 // --- VALIDATION RULES ---
-const RESTRICTED_MALE = ['m_top_5', 'm_top_6', 'm_bot_4', 'm_bot_5', 'm_bot_1', 'm_foot_3'];
-const RESTRICTED_FEMALE = ['f_top_3', 'f_top_4', 'f_top_6', 'f_bot_4', 'f_bot_5', 'f_bot_6', 'f_foot_3'];
+const dressRules = {
+  male: {
+    tops: {
+      'm_top_5': { message: "Sleeveless tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Polo Shirt, Long Sleeve Shirt" },
+      'm_top_6': { message: "Tank tops are not allowed. Wear a proper shirt or t-shirt.", suggestion: "Try: T-Shirt, Polo Shirt, Formal Shirt" }
+    },
+    bottoms: {
+      'm_bot_1': { message: "Ripped jeans are not allowed. Clothing must not be torn.", suggestion: "Try: Regular Jeans, Cargo Pants, Classic Fit Jeans" },
+      'm_bot_4': { message: "Beach shorts are not allowed. Wear full-length trousers.", suggestion: "Try: Regular Jeans, Cargo Pants, Classic Fit Jeans" },
+      'm_bot_5': { message: "Sports capris are not allowed. Wear full-length pants.", suggestion: "Try: Regular Jeans, Classic Fit Jeans" }
+    },
+    footwear: {
+      'm_foot_3': { message: "Rubber slides are not allowed. Appropriate footwear is required.", suggestion: "Try: Sneakers, Loafers" }
+    }
+  },
+  female: {
+    tops: {
+      'f_top_3': { message: "Sleeveless tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Long Sleeve Shirt" },
+      'f_top_4': { message: "Off-shoulder tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Long Sleeve Shirt, Frock" },
+      'f_top_6': { message: "Crop tops are not allowed. Midriff must be covered.", suggestion: "Try: T-Shirt, Long Dress" }
+    },
+    bottoms: {
+      'f_bot_4': { message: "Short skirts are not allowed. Skirts or shorts must be knee-length or longer.", suggestion: "Try: Formal Trousers, Regular Jeans" },
+      'f_bot_5': { message: "Denim shorts are not allowed. Wear full-length or knee-length pants/skirts.", suggestion: "Try: Formal Trousers, Regular Jeans" },
+      'f_bot_6': { message: "High torn jeans are not allowed. Clothing must not be torn.", suggestion: "Try: Regular Jeans, Formal Trousers" }
+    },
+    footwear: {
+      'f_foot_3': { message: "Slippers are not allowed. Closed or formal footwear is preferred.", suggestion: "Try: Sneakers, Closed Heels" }
+    }
+  }
+};
+
 // --- FULL BODY LOGIC ---
 const FULL_BODY_TOPS = ['f_top_1', 'f_top_7']; // Frock, Long Dress
 
 const validateOutfit = (gender, selectedOutfit) => {
-  const selectedItems = [selectedOutfit.top, selectedOutfit.bottom, selectedOutfit.footwear].filter(Boolean);
-  const restrictedList = gender === 'male' ? RESTRICTED_MALE : RESTRICTED_FEMALE;
-  
-  // Check if any selected item exists in the restricted list
-  const hasViolation = selectedItems.some(item => restrictedList.includes(item));
-  
-  if (hasViolation) {
+  let errors = [];
+  const rules = dressRules[gender];
+  const currentData = gender === 'male' ? MALE_DATA : FEMALE_DATA;
+
+  // check top
+  if (selectedOutfit.top && rules.tops[selectedOutfit.top]) {
+    const itemLabel = currentData.tops.find(t => t.id === selectedOutfit.top)?.label || selectedOutfit.top;
+    errors.push({
+      type: "Top",
+      item: itemLabel,
+      message: rules.tops[selectedOutfit.top].message,
+      suggestion: rules.tops[selectedOutfit.top].suggestion
+    });
+  }
+
+  // check bottom
+  if (selectedOutfit.bottom && rules.bottoms[selectedOutfit.bottom]) {
+    const itemLabel = currentData.bottoms.find(b => b.id === selectedOutfit.bottom)?.label || selectedOutfit.bottom;
+    errors.push({
+      type: "Bottom",
+      item: itemLabel,
+      message: rules.bottoms[selectedOutfit.bottom].message,
+      suggestion: rules.bottoms[selectedOutfit.bottom].suggestion
+    });
+  }
+
+  // check footwear
+  if (selectedOutfit.footwear && rules.footwear[selectedOutfit.footwear]) {
+    const itemLabel = currentData.footwear.find(f => f.id === selectedOutfit.footwear)?.label || selectedOutfit.footwear;
+    errors.push({
+      type: "Footwear",
+      item: itemLabel,
+      message: rules.footwear[selectedOutfit.footwear].message,
+      suggestion: rules.footwear[selectedOutfit.footwear].suggestion
+    });
+  }
+
+  if (errors.length > 0) {
     return {
       isValid: false,
-      message: `Selected outfit violates campus dress code for ${gender} students. Please choose appropriate clothing.`
+      errors: errors
     };
   }
   
-  return { isValid: true, message: "" };
+  return { isValid: true, errors: [] };
 };
 
 const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
   const [gender, setGender] = useState('male');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
-  const [warningMessage, setWarningMessage] = useState("");
+  const [warningMessage, setWarningMessage] = useState([]);
   
   // Selection state structured by gender
   const [selections, setSelections] = useState({
@@ -468,7 +529,12 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
   const handleSelect = (category, id) => {
     // Check if selecting a bottom while a full-body outfit is active
     if (category === 'bottom' && gender === 'female' && FULL_BODY_TOPS.includes(selections.female.top)) {
-      setWarningMessage("You cannot select a bottom with a frock or long dress.");
+      setWarningMessage([{
+        type: "Selection",
+        item: "Bottoms",
+        message: "You cannot select a bottom with a frock or long dress.",
+        suggestion: "Change your top first to wear bottoms."
+      }]);
       setShowWarning(true);
       return; 
     }
@@ -505,7 +571,7 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
     const validationResult = validateOutfit(gender, activeSelections);
     
     if (!validationResult.isValid) {
-      setWarningMessage(validationResult.message);
+      setWarningMessage(validationResult.errors);
       setShowWarning(true);
       return; // Stop navigation
     }
@@ -727,7 +793,23 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
               </svg>
             </div>
             <h2 className="validation-modal-title">Dress Code Violation</h2>
-            <p className="validation-modal-message">{warningMessage}</p>
+            <div className="validation-modal-message">
+              {Array.isArray(warningMessage) ? (
+                <div className="validation-error-list">
+                  {warningMessage.map((err, idx) => (
+                    <div key={idx} className="validation-error-item">
+                      <div className="validation-error-title">{err.type} Issue: {err.item.toUpperCase()}</div>
+                      <div className="validation-error-desc">{err.message}</div>
+                      {err.suggestion && (
+                        <div className="validation-error-suggestion">{err.suggestion}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>{warningMessage}</p>
+              )}
+            </div>
             <button className="validation-modal-btn" onClick={() => setShowWarning(false)}>OK</button>
           </div>
         </div>
