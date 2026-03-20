@@ -11,7 +11,7 @@ const COLORS = {
   f_top_4: '#6C5CE7', f_top_5: '#00B894', f_top_6: '#ff9ff3', f_top_7: '#E84342',
   f_bot_1: '#2D3436', f_bot_3: '#0984E3', 
   f_bot_4: '#E84342', f_bot_5: '#00CEC9', f_bot_6: '#6C5CE7', f_bot_7: '#8c7ae6',
-  f_foot_1: '#2D3436', f_foot_2: '#636E72', f_foot_3: '#FF7675'
+  f_foot_1: '#2D3436', f_foot_2: '#636E72', f_foot_3: '#E17055', f_foot_4: '#ffffff'
 };
 
 const SKIN_TONES = { light: '#f7cdb9', medium: '#f4caa7', tan: '#d3a484', dark: '#9e694b' };
@@ -477,6 +477,40 @@ const renderFootwearLayer = (id) => {
         <path d="M 53 184 C 53 190 55 194 60 194 A 4 4 0 0 0 63 184 Z" fill="#f4caa7" />
         <path d="M 53 189 Q 58 186 64 190" stroke={color} strokeWidth="2.5" fill="none" />
         <path d="M 54 194 L 62 194" stroke="#d2b48c" strokeWidth="2" strokeLinecap="round" />
+      </g>
+    );
+    if (id === 'f_foot_4') return (
+      <g>
+        {/* Animal Slippers (Bunny) */}
+        {/* Left Bunny */}
+        <path d="M 35 184 C 33 194 36 197 42 197 C 48 197 49 194 47 184 C 47 181 37 181 35 184 Z" fill={color} />
+        <path d="M 35 194 Q 41 198 47 194" stroke="#e0e0e0" strokeWidth="2" strokeLinecap="round" fill="none" />
+        
+        {/* Left Ears */}
+        <path d="M 38 184 Q 36 175 39 174 Q 42 175 41 184 Z" fill={color} />
+        <path d="M 43 184 Q 43 175 46 174 Q 48 175 46 184 Z" fill={color} />
+        <path d="M 38.5 182 Q 37 176 39 176 Q 40.5 176 40.5 182 Z" fill="#ff7675" />
+        <path d="M 43.5 182 Q 44 176 45.5 176 Q 47 176 45.5 182 Z" fill="#ff7675" />
+        
+        {/* Left Face */}
+        <circle cx="42" cy="189" r="1.5" fill="#ff7675" />
+        <circle cx="39" cy="188" r="1.2" fill="#2d3436" />
+        <circle cx="45" cy="188" r="1.2" fill="#2d3436" />
+
+        {/* Right Bunny */}
+        <path d="M 52 184 C 50 194 53 197 59 197 C 65 197 66 194 65 184 C 64 181 54 181 52 184 Z" fill={color} />
+        <path d="M 52 194 Q 59 198 65 194" stroke="#e0e0e0" strokeWidth="2" strokeLinecap="round" fill="none" />
+        
+        {/* Right Ears */}
+        <path d="M 54 184 Q 52 175 55 174 Q 58 175 57 184 Z" fill={color} />
+        <path d="M 60 184 Q 59 175 62 174 Q 65 175 63 184 Z" fill={color} />
+        <path d="M 54.5 182 Q 53 176 55 176 Q 56.5 176 56.5 182 Z" fill="#ff7675" />
+        <path d="M 60.5 182 Q 60 176 61.5 176 Q 64 176 62.5 182 Z" fill="#ff7675" />
+        
+        {/* Right Face */}
+        <circle cx="59" cy="189" r="1.5" fill="#ff7675" />
+        <circle cx="56" cy="188" r="1.2" fill="#2d3436" />
+        <circle cx="62" cy="188" r="1.2" fill="#2d3436" />
       </g>
     );
     return <g></g>;

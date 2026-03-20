@@ -60,6 +60,7 @@ const LongSkirt = () => <AvatarItemThumbnail type="bottom" itemId="f_bot_7" />;
 const ClosedHeels = () => <AvatarItemThumbnail type="footwear" itemId="f_foot_1" />;
 const FemaleSneakers = () => <AvatarItemThumbnail type="footwear" itemId="f_foot_2" />;
 const FemaleSlippers = () => <AvatarItemThumbnail type="footwear" itemId="f_foot_3" />;
+const AnimalSlippers = () => <AvatarItemThumbnail type="footwear" itemId="f_foot_4" />;
 
 // ==========================================
 // DATA MAPPING
@@ -111,7 +112,8 @@ const FEMALE_DATA = {
   footwear: [
     { id: 'f_foot_1', label: 'closed heels', Comp: ClosedHeels },
     { id: 'f_foot_2', label: 'sneakers', Comp: FemaleSneakers },
-    { id: 'f_foot_3', label: 'slippers', Comp: FemaleSlippers }
+    { id: 'f_foot_3', label: 'slippers', Comp: FemaleSlippers },
+    { id: 'f_foot_4', label: 'animal slippers', Comp: AnimalSlippers }
   ]
 };
 
@@ -144,7 +146,8 @@ const dressRules = {
       'f_bot_6': { message: "High torn jeans are not allowed. Clothing must not be torn.", suggestion: "Try: Regular Jeans, Formal Trousers" }
     },
     footwear: {
-      'f_foot_3': { message: "Slippers are not allowed. Closed or formal footwear is preferred.", suggestion: "Try: Sneakers, Closed Heels" }
+      'f_foot_3': { message: "Slippers are not allowed. Closed or formal footwear is preferred.", suggestion: "Try: Sneakers, Closed Heels" },
+      'f_foot_4': { message: "Animal stuffed slippers are not allowed on campus.", suggestion: "Try: Sneakers, Closed Heels" }
     }
   }
 };
