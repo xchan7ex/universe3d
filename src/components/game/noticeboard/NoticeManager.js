@@ -24,8 +24,8 @@ export class NoticeManager {
             },
             {
                 id: 'n3',
-                text: "FOR SALE:\nRusty Bike\nNeeds work.",
-                type: 'trade',
+                text: "University Cricket Championship\n\nGet ready for an exciting cricket showdown between faculties.\n\n📅 Date: 18th October\n📍 Venue: Cricket Ground\n⏰ Time: 9:30 AM\n\nEvents include:\n• T20 Matches\n• Knockout Rounds\n• Final Match\n\nRegister before 15th October",
+                type: 'event',
                 color: 0xffebcd,
                 x: -0.9, y: -0.6, rotation: 0.05
             },
