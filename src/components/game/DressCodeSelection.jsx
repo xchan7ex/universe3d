@@ -193,6 +193,7 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
   const [gender, setGender] = useState('male');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [warningMessage, setWarningMessage] = useState([]);
   
   // Selection state structured by gender
@@ -278,7 +279,8 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
       return; // Stop navigation
     }
 
-    if (onComplete) onComplete(finalConfig);
+    // Show success popup instead of immediately continuing
+    setShowSuccess(true);
   };
 
   const currentData = gender === 'male' ? MALE_DATA : FEMALE_DATA;
@@ -496,6 +498,9 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
             </div>
             <h2 className="validation-modal-title">Dress Code Violation</h2>
             <div className="validation-modal-message">
+              <p style={{ fontWeight: 'bold', color: '#e74c3c', marginBottom: '15px' }}>
+                You selected a not allowed dresscode. Please try again!
+              </p>
               {Array.isArray(warningMessage) ? (
                 <div className="validation-error-list">
                   {warningMessage.map((err, idx) => (
@@ -512,7 +517,40 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
                 <p>{warningMessage}</p>
               )}
             </div>
-            <button className="validation-modal-btn" onClick={() => setShowWarning(false)}>OK</button>
+            <button className="validation-modal-btn" onClick={() => setShowWarning(false)}>Try Again</button>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccess && (
+        <div className="validation-modal-overlay">
+          <div className="validation-modal" style={{ borderTop: '5px solid #2ecc71' }}>
+            <div className="validation-modal-icon" style={{ color: '#2ecc71', background: 'rgba(46, 204, 113, 0.1)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <h2 className="validation-modal-title" style={{ color: '#2ecc71' }}>All Allowed!</h2>
+            <div className="validation-modal-message">
+              <p style={{ fontWeight: 'bold', color: '#2c3e50', marginBottom: '15px' }}>
+                Excellent choice! Your selected dresscode follows all university rules.
+              </p>
+              <p>You now have permission to continue to the game.</p>
+            </div>
+            <button 
+              className="validation-modal-btn" 
+              style={{ background: '#2ecc71', borderColor: '#27ae60' }} 
+              onClick={() => onComplete({
+                gender,
+                top: selections[gender].top,
+                bottom: selections[gender].bottom,
+                footwear: selections[gender].footwear
+              })}
+            >
+              Continue to Game
+            </button>
           </div>
         </div>
       )}
