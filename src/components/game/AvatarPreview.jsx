@@ -379,29 +379,39 @@ const renderFootwearLayer = (id) => {
   const color = COLORS[id] || '#fff';
   if (id.startsWith('f_')) {
     if (id === 'f_foot_1') return (
-      <g fill={color}>
+      <g>
         {/* Closed Heels */}
-        <path d="M 40 185 L 48 185 L 48 193 Q 38 194 38 185 Z" />
-        <rect x="45" y="193" width="2" height="6" />
-        <path d="M 52 185 L 60 185 L 62 185 Q 62 194 52 193 Z" />
-        <rect x="53" y="193" width="2" height="6" />
+        <path d="M 37 184 C 36 192 36 195 41 195 C 46 195 47 190 47 184 Z" fill={color} />
+        <path d="M 40.5 195 L 41 201 L 43 201 L 42.5 195 Z" fill="#222" />
+        <path d="M 38 184 Q 42 190 46 184 Z" fill="#f4caa7" />
+        
+        <path d="M 53 184 C 53 190 54 195 59 195 C 64 195 64 192 63 184 Z" fill={color} />
+        <path d="M 57.5 195 L 57 201 L 59 201 L 59.5 195 Z" fill="#222" />
+        <path d="M 54 184 Q 58 190 62 184 Z" fill="#f4caa7" />
       </g>
     );
     if (id === 'f_foot_2') return (
       <g>
         {/* Sneakers */}
-        <path d="M 37 183 L 48 183 L 49 193 Q 38 194 37 183 Z" fill={color} />
-        <path d="M 52 183 L 63 183 L 63 183 Q 62 194 51 193 Z" fill={color} />
-        <path d="M 37 190 L 49 190 M 51 190 L 63 190" stroke="#ddd" strokeWidth="2" fill="none" />
+        <path d="M 36 183 C 34 190 35 195 41 195 C 48 195 48 190 47 183 Z" fill={color} />
+        <path d="M 36 192 Q 41 196 47 192 L 48 195 Q 41 198 35 195 Z" fill="#fff" />
+        <path d="M 40 185 L 44 185 M 39 188 L 45 188 M 38 191 L 46 191" stroke="#fff" strokeWidth="1" />
+        
+        <path d="M 53 183 C 52 190 52 195 59 195 C 66 195 66 190 64 183 Z" fill={color} />
+        <path d="M 53 192 Q 59 196 64 192 L 65 195 Q 59 198 52 195 Z" fill="#fff" />
+        <path d="M 56 185 L 60 185 M 55 188 L 61 188 M 54 191 L 62 191" stroke="#fff" strokeWidth="1" />
       </g>
     );
     if (id === 'f_foot_3') return (
       <g>
-        {/* Slippers */}
-        <rect x="37" y="192" width="12" height="2" fill="#d2b48c" rx="1" />
-        <path d="M 39 188 Q 43 185 47 192" stroke={color} strokeWidth="2.5" fill="none" />
-        <rect x="51" y="192" width="12" height="2" fill="#d2b48c" rx="1" />
-        <path d="M 53 192 Q 57 185 61 188" stroke={color} strokeWidth="2.5" fill="none" />
+        {/* Slippers/Sandals */}
+        <path d="M 37 184 C 36 192 36 194 40 194 A 4 4 0 0 0 47 184 Z" fill="#f4caa7" />
+        <path d="M 36 190 Q 42 186 47 189" stroke={color} strokeWidth="2.5" fill="none" />
+        <path d="M 38 194 L 46 194" stroke="#d2b48c" strokeWidth="2" strokeLinecap="round" />
+        
+        <path d="M 53 184 C 53 190 55 194 60 194 A 4 4 0 0 0 63 184 Z" fill="#f4caa7" />
+        <path d="M 53 189 Q 58 186 64 190" stroke={color} strokeWidth="2.5" fill="none" />
+        <path d="M 54 194 L 62 194" stroke="#d2b48c" strokeWidth="2" strokeLinecap="round" />
       </g>
     );
     return <g></g>;
