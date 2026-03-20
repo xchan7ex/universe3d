@@ -67,8 +67,8 @@ const MALE_DATA = {
     { id: 'm_bot_2', label: 'regular jeans', Comp: RegularJeans },
     { id: 'm_bot_3', label: 'cargo jeans', Comp: CargoPants },
     { id: 'm_bot_4', label: 'beach shorts', Comp: BeachShorts },
-    { id: 'm_bot_5', label: 'sports capri', Comp: SportsCapri },
-    { id: 'm_bot_6', label: 'classic fit jeans', Comp: ClassicFitJeans }
+    { id: 'm_bot_5', label: 'shorts', Comp: SportsCapri },
+    { id: 'm_bot_6', label: 'classic jeans', Comp: ClassicFitJeans }
   ],
   footwear: [
     { id: 'm_foot_1', label: 'sneakers', Comp: Sneakers },
@@ -111,9 +111,9 @@ const dressRules = {
       'm_top_6': { message: "Tank tops are not allowed. Wear a proper shirt or t-shirt.", suggestion: "Try: T-Shirt, Polo Shirt, Formal Shirt" }
     },
     bottoms: {
-      'm_bot_1': { message: "Ripped jeans are not allowed. Clothing must not be torn.", suggestion: "Try: Regular Jeans, Cargo Pants, Classic Fit Jeans" },
-      'm_bot_4': { message: "Beach shorts are not allowed. Wear full-length trousers.", suggestion: "Try: Regular Jeans, Cargo Pants, Classic Fit Jeans" },
-      'm_bot_5': { message: "Sports capris are not allowed. Wear full-length pants.", suggestion: "Try: Regular Jeans, Classic Fit Jeans" }
+      'm_bot_1': { message: "Ripped jeans are not allowed. Clothing must not be torn.", suggestion: "Try: Regular Jeans, Cargo Pants, Classic Jeans" },
+      'm_bot_4': { message: "Beach shorts are not allowed. Wear full-length trousers.", suggestion: "Try: Regular Jeans, Cargo Pants, Classic Jeans" },
+      'm_bot_5': { message: "Shorts are not allowed. Wear full-length pants.", suggestion: "Try: Regular Jeans, Classic Jeans" }
     },
     footwear: {
       'm_foot_3': { message: "Crocs are too casual for university dress code. Please wear appropriate closed footwear.", suggestion: "Try: Sneakers, Formal Shoes" },
