@@ -35,6 +35,13 @@ export class NoticeManager {
                 type: 'warning',
                 color: 0xffcccc,
                 x: 0.7, y: -0.5, rotation: -0.12
+            },
+            {
+                id: 'n5',
+                text: "CODESPEC '23 National Tech & Innovation \nDate : 23 Sep\n Time :9AM-5:30PM\n Venue : Main Auditorium\n\nEvents:\n- CodeRush\n- Bug Hunt\n- WebCraft\n- Tech Quiz\n- Project Showcase\n\nPrizes: Trophies\n& Cash! \n All participants will receive Certificates of Participation.",
+                type: 'event',
+                color: 0xdff9fb,
+                x: 0.0, y: 0.1, rotation: -0.05
             }
         ];
 
