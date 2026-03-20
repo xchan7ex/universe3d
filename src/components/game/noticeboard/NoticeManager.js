@@ -31,8 +31,8 @@ export class NoticeManager {
             },
             {
                 id: 'n4',
-                text: "BEWARE:\nThe Dean is\nwatching.",
-                type: 'warning',
+                text: "Inter-University Sports Meet 2023\n\nThe Department of Physical Education proudly announces the Annual Inter-University Sports Meet 2023, bringing together athletes from across the country to compete in a range of sporting events.\nAll students are encouraged to participate and represent their faculty.\n\n📅 Date: 15th – 17th October 2023\n📍 Venue: University Sports Complex, Main Grounds & Indoor Stadium\n⏰ Time: 8:00 AM onwards\n\n🏅 Events Include:\n• Football Tournament\n• Basketball (Men & Women)\n• Cricket Matches\n• 100m / 200m / 400m Track Events\n• Long Jump & High Jump\n• Badminton (Singles & Doubles)",
+                type: 'event',
                 color: 0xffcccc,
                 x: 0.7, y: -0.5, rotation: -0.12
             },
@@ -42,7 +42,8 @@ export class NoticeManager {
                 type: 'event',
                 color: 0xdff9fb,
                 x: 0.0, y: 0.1, rotation: -0.05
-            }
+            },
+
         ];
 
         defaultNotices.forEach(n => {
