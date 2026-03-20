@@ -227,7 +227,7 @@ const TreasureHunt = ({ scene, playerRef, setMissions }) => {
                     const distKey = playerPos.distanceTo(keyRef.current.position);
                     if (distKey < 3.0) {
                         newLabel = "Collect Key";
-                        if (keys.current.f || keys.current.e) {
+                        if ( keys.current.e) {
                             // Collect Key
                             scene.remove(keyRef.current);
                             keyRef.current = null;
