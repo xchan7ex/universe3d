@@ -45,7 +45,6 @@ const RedSneakers = () => (
 // ==========================================
 
 const FrockTop = () => <AvatarItemThumbnail type="top" itemId="f_top_1" />;
-const FemaleLongSleeve = () => <AvatarItemThumbnail type="top" itemId="f_top_2" />;
 const FemaleSleeveless = () => <AvatarItemThumbnail type="top" itemId="f_top_3" />;
 const OffShoulder = () => <AvatarItemThumbnail type="top" itemId="f_top_4" />;
 const FemaleTShirt = () => <AvatarItemThumbnail type="top" itemId="f_top_5" />;
@@ -94,7 +93,6 @@ const MALE_DATA = {
 const FEMALE_DATA = {
   tops: [
     { id: 'f_top_1', label: 'frock', Comp: FrockTop },
-    { id: 'f_top_2', label: 'long sleeve shirt', Comp: FemaleLongSleeve },
     { id: 'f_top_3', label: 'sleeveless top', Comp: FemaleSleeveless },
     { id: 'f_top_4', label: 'off shoulder top', Comp: OffShoulder }, 
     { id: 'f_top_5', label: 't shirt', Comp: FemaleTShirt },
@@ -134,8 +132,8 @@ const dressRules = {
   },
   female: {
     tops: {
-      'f_top_3': { message: "Sleeveless tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Long Sleeve Shirt" },
-      'f_top_4': { message: "Off-shoulder tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Long Sleeve Shirt, Frock" },
+      'f_top_3': { message: "Sleeveless tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Frock" },
+      'f_top_4': { message: "Off-shoulder tops are not allowed. Shoulders must be covered.", suggestion: "Try: T-Shirt, Frock" },
       'f_top_6': { message: "Crop tops are not allowed. Midriff must be covered.", suggestion: "Try: T-Shirt, Long Dress" }
     },
     bottoms: {
