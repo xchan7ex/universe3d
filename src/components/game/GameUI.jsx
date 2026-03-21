@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import MissionPanel from './MissionPanel'
 import SearchLocation from './SearchLocation'
 import Feedback from './Feedback'
+import Minimap from './Minimap'
 
 // Building data for display names
 const BUILDING_INFO = {
