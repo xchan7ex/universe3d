@@ -30,6 +30,18 @@ app.post('/api/feedback', async (req, res) => {
         console.log('API hit. Mongoose readyState:', mongoose.connection.readyState);
         console.log('Feedback model DB readyState:', Feedback.db.readyState);
         const { nickname, review, rating } = req.body;
+
+        // Validation based on schema
+        if (!nickname || !review || !rating) {
+            return res.status(400).json({ message: 'Nickname, review, and rating are required.' });
+        }
+
+        const newFeedback = new Feedback({
+            nickname,
+            review,
+            rating,
+            timestamp: new Date()
+        });
     } catch (error) {
         console.error('Error saving feedback:', error);
         res.status(500).json({ message: 'Failed to save feedback' });
