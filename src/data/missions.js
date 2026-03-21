@@ -211,11 +211,6 @@ const MISSIONS = [
         options: ['Security', 'Reception', 'Lecturer or Program Leader', 'Cafeteria staff'],
         correctAnswer: 2
       },
-      {
-        question: 'A clear hierarchy helps improve what?',
-        options: ['Confusion', 'Communication and accountability', 'Noise', 'Delays'],
-        correctAnswer: 1
-      }
     ]
   },
   {
