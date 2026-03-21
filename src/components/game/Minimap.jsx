@@ -77,6 +77,7 @@ function Minimap({ playerRef, currentFloor, buildingName, isExpanded, selectedBu
 
             // Dark background behind any letterbox bars
             ctx.fillStyle = '#111827'
+            // We can keep it or remove it, but let's draw it anyway.
             ctx.fillRect(0, 0, W, H)
 
             if (!img.complete || img.naturalWidth === 0) {
@@ -194,7 +195,7 @@ function Minimap({ playerRef, currentFloor, buildingName, isExpanded, selectedBu
                     ref={canvasRef}
                     className="minimap-canvas"
                     width={isExpanded ? 400 : 260}
-                    height={isExpanded ? 446 : 290}
+                    height={isExpanded ? 711 : 462}
                     onClick={handleClick}
                     style={CALIBRATION_MODE
                         ? { cursor: 'crosshair', outline: '2px solid #facc15' }
