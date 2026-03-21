@@ -409,6 +409,15 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTryDressCode
         </div>
       )}
 
+      {/*  Mini Map */}
+      <Minimap
+        playerRef={playerRef}
+        currentFloor={currentFloor}
+        buildingName={buildingInfo.name}
+        isExpanded={isMinimapExpanded}
+        selectedBuilding={selectedBuilding}
+      />
+
       {/* Bottom Info */}
       <div className="game-ui-bottom">
         <div className="game-floor-indicator">
