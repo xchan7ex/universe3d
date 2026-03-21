@@ -67,28 +67,30 @@ const MISSIONS = [
     completed: false,
     info: {
       title: 'Student Resource Unit (SRU)',
-      description: 'The SRU Office provides comprehensive support services for all students. From academic advising to mental health resources, career counseling, and financial aid guidance, the SRU team is here to ensure your success throughout your university journey.',
+      description: 'The Student Resource Unit, SRU, supports students with academic administration and official services. Students visit this office for documentation, academic letters, and help with university procedures.',
+      
       details: [
-        '📚 Academic Support & Tutoring',
-        '💼 Career Counseling Services',
-        '💰 Financial Aid Assistance',
-        '🧠 Mental Health Resources',
-        '🎓 Student Success Programs'
+        '📚 Academic letters and official documents',
+        '📖 Module registration assistance',
+        '👨‍🎓 Student record support',
+        '👩‍💼 Help with administrative inquiries',
+        '🎓 Guidance on university procedures',
+        '⏱️ Open during normal administrative office hours'
       ]
     },
     questions: [
       {
-        question: 'What does SRU mainly support?',
-        options: ['Cafeteria menu', 'Student registration and records', 'Gym training', 'Building maintenance'],
+        question: 'What is the main purpose of the SRU office?',
+        options: ['Conduct lectures', 'Support students with administrative services', 'Provide library books', 'Manage student clubs'],
         correctAnswer: 1
       },
       {
-        question: 'When do students visit SRU?',
-        options: ['For timetable issues', 'For lunch', 'For sports practice', 'For gaming'],
-        correctAnswer: 0
+        question: 'Which type of issue should students take to the SRU office?',
+        options: ['Classroom teaching problems', 'Academic administration and documentation', 'Sports activities', 'Food services'],
+        correctAnswer: 1
       },
       {
-        question: 'What document might you collect there?',
+        question: 'What type of documents might students request from SRU?',
         options: ['Food receipt', 'Academic transcript', 'Gym card', 'Parking ticket'],
         correctAnswer: 1
       },
