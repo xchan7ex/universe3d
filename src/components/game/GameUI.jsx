@@ -395,18 +395,6 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTryDressCode
         }}
       />
 
-      {/* Mini Map */}
-      <div className={`game-minimap ${isMinimapExpanded ? "expanded" : ""}`}>
-        <div className="minimap-header">
-          <span>{buildingInfo.name}</span>
-          <span className="minimap-key">M</span>
-        </div>
-        <div className="minimap-content">
-          <div className="minimap-player-dot"></div>
-        </div>
-        {/* <div className="minimap-hint">Hold M to expand</div> */}
-      </div>
-
       {/* Navigation Message */}
       {navigationMessage && (
         <div className="navigation-message-toast">
