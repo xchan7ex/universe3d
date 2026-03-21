@@ -11,19 +11,19 @@ const Feedback = ({ onComplete, onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        try {
+                try {
             const response = await fetch('https://universe3d.onrender.com/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ rating, review: comment, nickname: 'Explorer' }),
+                body: JSON.stringify({ rating, review, nickname: playerNickname || 'Explorer' }),
             });
 
             if (response.ok) {
                 setSubmitted(true);
                 setTimeout(() => {
-                    if (onComplete) onComplete();
+                    onComplete();
                 }, 1500);
             } else {
                 console.error('Failed to submit feedback');
@@ -33,11 +33,6 @@ const Feedback = ({ onComplete, onClose }) => {
         } finally {
             setIsSubmitting(false);
         }
-    };
-
-    const handleSkip = () => {
-        if (onComplete) onComplete();
-        else if (onClose) onClose();
     };
 
     if (submitted) {
