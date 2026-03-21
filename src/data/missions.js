@@ -133,39 +133,24 @@ const MISSIONS = [
     },
     questions: [
       {
-        question: 'What is the seating capacity of Lecture Hall 1LA?',
-        options: ['100 students', '150 students', '200 students', '250 students'],
-        correctAnswer: 2
-      },
-      {
-        question: 'Lecture Hall 1LA features:',
-        options: ['No technology', 'Basic equipment', 'Modern AV technology', 'Only a whiteboard'],
-        correctAnswer: 2
-      },
-      {
-        question: 'The seating in the lecture hall is:',
-        options: ['Standing room', 'Tiered seating', 'Circle arrangement', 'No seating'],
+        question: 'What is the primary use of Tutorial Room 1LA?',
+        options: ['Student meetings', 'Academic tutorials and seminars', 'Sports activities', 'Administrative work'],
         correctAnswer: 1
       },
       {
-        question: 'What type of events are held here?',
-        options: ['Only exams', 'Sports events', 'Lectures and presentations', 'Parties'],
+        question: 'What do students normally follow to attend lectures in halls like 1LA?',
+        options: ['Event calendar', 'Personal schedule', 'Modern AV technology', 'Only a whiteboard'],
         correctAnswer: 2
       },
       {
-        question: 'The hall has WiFi that is:',
-        options: ['Not available', 'Slow speed', 'High-speed', 'For staff only'],
-        correctAnswer: 2
-      },
-      {
-        question: 'Audio quality in the hall is:',
-        options: ['Poor', 'Average', 'Excellent acoustics', 'No sound system'],
-        correctAnswer: 2
-      },
-      {
-        question: 'Display screens in the hall are:',
-        options: ['Single screen', 'Multiple screens', 'No screens', 'Broken screens'],
+        question: 'What activity commonly happens in tutorial halls?',
+        options: ['Programming competitions', 'Presentations and teaching sessions', 'Food services', ' Sports training'],
         correctAnswer: 1
+      },
+      {
+        question: 'What is expected from students inside a lecture hall?',
+        options: ['Maintain discipline and listen to the lecturer', ' Talk loudly with friends', 'Use mobile phones continuously', 'Walk around during the session'],
+        correctAnswer: 2
       },
       {
         question: 'The lecture hall is suitable for:',
