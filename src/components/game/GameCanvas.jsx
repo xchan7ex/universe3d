@@ -384,6 +384,9 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     player.position.set(spawnPos.x, spawnPos.y, spawnPos.z)
     scene.add(player)
 
+    // ─── Expose playerRef to parent (for minimap tracking) ───
+    if (onPlayerRef) onPlayerRef(playerRef)
+
     // ─── Initialize Notice Board System ───
     const noticeBoardSystem = new NoticeBoardSystem(renderer, scene, camera, playerRef)
     noticeBoardSystemRef.current = noticeBoardSystem
