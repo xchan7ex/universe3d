@@ -327,8 +327,7 @@ const MISSIONS = [
         '💻 Technical Support',
         '🔐 Account Management',
         '📡 WiFi Connectivity',
-        '🛠️ Hardware Repair',
-        '💾 Software Licenses'
+        '💻 Software problems'
       ]
     },
     questions: [
