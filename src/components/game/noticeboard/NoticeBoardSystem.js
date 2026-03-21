@@ -253,60 +253,45 @@ export class NoticeBoardSystem {
         // Remove existing if any
         this.hidePopup();
 
-        const popup = document.createElement('div');
-        this.popupElement = popup;
+        // Overlay
+        const overlay = document.createElement('div');
+        this.popupElement = overlay;
+        overlay.className = 'mission-modal-overlay';
+        overlay.style.opacity = '0'; // Starting opacity for animation
 
-        // Styles
-        Object.assign(popup.style, {
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) scale(0.9)',
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            color: '#e2e8f0',
-            padding: '32px',
-            borderRadius: '16px',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
-            zIndex: '10002',
-            maxWidth: '520px',
-            width: '90%',
-            fontFamily: "'Inter', 'Segoe UI', sans-serif",
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(12px)',
-            opacity: '0',
-            transition: 'opacity 0.3s ease, transform 0.3s ease'
-        });
+        // Content Wrapper
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'mission-modal-content mission-quiz-modal';
 
-        // Close button for popup
-        const closeBtn = document.createElement('button');
-        Object.assign(closeBtn.style, {
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-            color: '#94a3b8',
-            border: 'none',
-            fontSize: '16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s ease',
-            fontFamily: 'sans-serif'
-        });
-        closeBtn.innerHTML = '✕';
-        closeBtn.addEventListener('mouseenter', () => {
-            closeBtn.style.backgroundColor = 'rgba(239, 68, 68, 0.8)';
-            closeBtn.style.color = '#fff';
-        });
-        closeBtn.addEventListener('mouseleave', () => {
-            closeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-            closeBtn.style.color = '#94a3b8';
-        });
-        closeBtn.addEventListener('click', (e) => {
+        // Header
+        const header = document.createElement('div');
+        header.className = 'mission-modal-header';
+
+        const titleContainer = document.createElement('div');
+        const title = document.createElement('h2');
+        title.innerText = '📋 Notice';
+        titleContainer.appendChild(title);
+
+        header.appendChild(titleContainer);
+
+        // Body
+        const body = document.createElement('div');
+        body.className = 'mission-modal-body';
+
+        const description = document.createElement('div');
+        description.className = 'mission-modal-description';
+        description.innerHTML = config.text.replace(/\n/g, '<br>');
+        
+        body.appendChild(description);
+
+        // Footer
+        const footer = document.createElement('div');
+        footer.className = 'mission-modal-footer';
+
+        const continueBtn = document.createElement('button');
+        continueBtn.className = 'mission-modal-continue';
+        continueBtn.innerText = 'Close Notice';
+        continueBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (this.currentPaper) {
                 this.currentPaper.putBack();
@@ -315,27 +300,7 @@ export class NoticeBoardSystem {
             this.hidePopup();
         });
 
-        // Title
-        const title = document.createElement('h2');
-        title.innerText = '📋 Notice';
-        Object.assign(title.style, {
-            margin: '0 0 16px 0',
-            fontSize: '1.4rem',
-            color: '#fff',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-            paddingBottom: '12px',
-            paddingRight: '30px'
-        });
-
-        // Content
-        const content = document.createElement('p');
-        content.innerHTML = config.text.replace(/\n/g, '<br>');
-        Object.assign(content.style, {
-            fontSize: '1.05rem',
-            lineHeight: '1.7',
-            color: '#cbd5e1',
-            margin: '0'
-        });
+        footer.appendChild(continueBtn);
 
         // Type-specific styling
         if (config.type === 'quest') {
@@ -344,18 +309,24 @@ export class NoticeBoardSystem {
         } else if (config.type === 'warning') {
             title.innerText = '⚠️ Warning';
             title.style.color = '#ef4444';
+        } else if (config.type === 'event') {
+            title.innerText = '📅 Event';
+            title.style.color = '#60a5fa';
+        } else if (config.type === 'info') {
+            title.innerText = 'ℹ️ Info';
+            title.style.color = '#34d399';
         }
 
-        popup.appendChild(closeBtn);
-        popup.appendChild(title);
-        popup.appendChild(content);
+        contentWrapper.appendChild(header);
+        contentWrapper.appendChild(body);
+        contentWrapper.appendChild(footer);
+        overlay.appendChild(contentWrapper);
 
-        document.body.appendChild(popup);
+        document.body.appendChild(overlay);
 
-        // Fade in with scale
+        // Fade in
         requestAnimationFrame(() => {
-            popup.style.opacity = '1';
-            popup.style.transform = 'translate(-50%, -50%) scale(1)';
+            overlay.style.opacity = '1';
         });
     }
 
@@ -363,7 +334,7 @@ export class NoticeBoardSystem {
         if (this.popupElement) {
             const el = this.popupElement;
             this.popupElement = null;
-            el.style.opacity = '0';
+            el.classList.add('closing');
             setTimeout(() => {
                 if (el.parentNode) el.parentNode.removeChild(el);
             }, 300);

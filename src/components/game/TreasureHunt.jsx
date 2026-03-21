@@ -118,16 +118,19 @@ const TreasureHunt = ({ scene, playerRef, setMissions }) => {
             const blueMat = new THREE.MeshStandardMaterial({
                 color: 0x2f78a8,
                 roughness: 0.4,
-                metalness: 0.1
+                metalness: 0.1,
+                side: THREE.DoubleSide
             });
             const goldMat = new THREE.MeshStandardMaterial({
                 color: 0xf2b233,
                 roughness: 0.3,
-                metalness: 0.6
+                metalness: 0.6,
+                side: THREE.DoubleSide
             });
             const darkMat = new THREE.MeshStandardMaterial({
                 color: 0x1b3d5a,
-                roughness: 0.8
+                roughness: 0.8,
+                side: THREE.DoubleSide
             });
 
             // --- Base Body (Blue Panel) ---
@@ -224,7 +227,7 @@ const TreasureHunt = ({ scene, playerRef, setMissions }) => {
                     const distKey = playerPos.distanceTo(keyRef.current.position);
                     if (distKey < 3.0) {
                         newLabel = "Collect Key";
-                        if (keys.current.f || keys.current.e) {
+                        if ( keys.current.e) {
                             // Collect Key
                             scene.remove(keyRef.current);
                             keyRef.current = null;
