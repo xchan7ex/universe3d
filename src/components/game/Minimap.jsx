@@ -178,4 +178,35 @@ function Minimap({ playerRef, currentFloor, buildingName, isExpanded, selectedBu
         if (calClickRef.current >= 2) calClickRef.current = 0
     }, [playerRef])
 
+       // ── Render ────────────────────────────────────────────────────────────────
+    return (
+        <div className={`game-minimap ${isExpanded ? 'expanded' : ''}`}>
+            <div className="minimap-header">
+                <span>{buildingName}</span>
+                <span className="minimap-floor-label">
+                    {currentFloor === 1 ? 'Ground' : `Floor ${currentFloor - 1}`}
+                </span>
+                <span className="minimap-key">M</span>
+            </div>
+
+            <div className="minimap-content">
+                <canvas
+                    ref={canvasRef}
+                    className="minimap-canvas"
+                    width={isExpanded ? 400 : 260}
+                    height={isExpanded ? 446 : 290}
+                    onClick={handleClick}
+                    style={CALIBRATION_MODE
+                        ? { cursor: 'crosshair', outline: '2px solid #facc15' }
+                        : undefined
+                    }
+                />
+                <span ref={coordRef} className="minimap-coords">F? | x:? z:?</span>
+            </div>
+        </div>
+    )
 }
+
+export default Minimap
+
+
