@@ -387,6 +387,23 @@ const MISSIONS = [
         '⌨️ Press E to interact'
       ]
     }
+  },
+  {
+    id: 'mission-10',
+    title: 'Check the Notice Board',
+    description: 'The Notice Board is your central hub for all campus announcements, events, and important messages. Click on the board to zoom in, and then click on individual paper notes to read their contents in detail.',
+    coordinates: { x: -4.0, y: 13.8, z: -12.2 },
+    completed: false,
+    isHidden: true,
+    info: {
+      title: 'Notice Board',
+      description: 'The Notice Board is your central hub for all campus announcements, events, and important messages. Click on the board to zoom in, and then click on individual paper notes to read their contents in detail.',
+      details: [
+        '📌 Click on the board to view notices',
+        '📄 Click individual notices to read them',
+        '✖️ Click the close button to exit zoom mode'
+      ]
+    }
   }
 ];
 

@@ -3,8 +3,11 @@ import React, { useState } from 'react'
 function MissionPanel({ missions, onMissionUpdate }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const completedCount = missions.filter(m => m.completed).length
-  const totalCount = missions.length
+  // Filter out hidden missions before rendering stats and list
+  const visibleMissions = missions.filter(m => !m.isHidden)
+
+  const completedCount = visibleMissions.filter(m => m.completed).length
+  const totalCount = visibleMissions.length
   const progressPercent = (completedCount / totalCount) * 100
 
   return (
@@ -43,7 +46,7 @@ function MissionPanel({ missions, onMissionUpdate }) {
       {/* Mission List - Expandable */}
       {isExpanded && (
         <div className="mission-list">
-          {missions.map((mission) => (
+          {visibleMissions.map((mission) => (
             <div
               key={mission.id}
               className={`mission-item ${mission.completed ? 'completed' : ''}`}
