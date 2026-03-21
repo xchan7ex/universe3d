@@ -157,4 +157,25 @@ function Minimap({ playerRef, currentFloor, buildingName, isExpanded, selectedBu
      rafRef.current = requestAnimationFrame(drawMinimap)
         return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
     }, [playerRef, isExpanded]) // eslint-disable-line react-hooks/exhaustive-deps
+
+        // ── Calibration click (active only when CALIBRATION_MODE = true) ──────────
+    const calClickRef = useRef(0)
+    const handleClick = useCallback((e) => {
+        if (!CALIBRATION_MODE) return
+        const canvas = canvasRef.current
+        if (!canvas) return
+        const rect     = canvas.getBoundingClientRect()
+        const scaleX   = canvas.width  / rect.width
+        const scaleY   = canvas.height / rect.height
+        const cpx      = (e.clientX - rect.left) * scaleX
+        const cpy      = (e.clientY - rect.top)  * scaleY
+        const player   = playerRef?.current?.current
+        const worldX   = player ? player.position.x.toFixed(2) : '?'
+        const worldZ   = player ? player.position.z.toFixed(2) : '?'
+        calClickRef.current += 1
+        const label = calClickRef.current === 1 ? 'Ref A' : 'Ref B'
+        console.log(`[Minimap Cal] ${label} → canvas(${cpx.toFixed(0)}, ${cpy.toFixed(0)}) world(${worldX}, ${worldZ})`)
+        if (calClickRef.current >= 2) calClickRef.current = 0
+    }, [playerRef])
+
 }
