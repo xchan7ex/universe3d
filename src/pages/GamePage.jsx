@@ -138,6 +138,12 @@ function GamePage() {
     navigate('/')
   }
 
+  // Called when player wants to re-try dress code from in-game
+  const handleTryDressCode = () => {
+    sessionStorage.removeItem('universe3d_dresscode')
+    setScreenState('dresscode')
+  }
+
   // Handle teleportation
   const handleTeleport = (location) => {
     setTeleportTarget(location)
@@ -203,6 +209,7 @@ function GamePage() {
               playerNickname={playerNickname}
               selectedBuilding={selectedBuilding}
               onBackToMenu={() => setScreenState("menu")}
+              onTryDressCode={handleTryDressCode}
               onTeleport={handleTeleport}
               currentFloor={currentFloor}
               setCurrentFloor={setCurrentFloor}
