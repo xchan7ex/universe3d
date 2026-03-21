@@ -708,7 +708,6 @@
   height: calc(100% - 44px);
   background-size: 30px 30px;
 }
-
 .minimap-player-dot {
   position: absolute;
   top: 50%;
@@ -756,6 +755,132 @@
 .game-minimap.expanded .minimap-hint {
   opacity: 0;
 }
+
+
+
+/* ─── Mini Map ─── */
+.game-minimap {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.5rem;
+  width: 260px;
+  height: 492px;
+  /* 30px header + 462px map */
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.game-minimap.expanded {
+  width: 400px;
+  height: 755px;
+  /* 44px header + 711px map */
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+/* Header row */
+.minimap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  gap: 0.3rem;
+  height: 30px;
+  transition: all 0.3s ease;
+}
+
+.game-minimap.expanded .minimap-header {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  height: 44px;
+}
+
+/* Floor label inside header */
+.minimap-floor-label {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* M key badge */
+.minimap-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(100, 116, 139, 0.25);
+  border: 1px solid rgba(100, 116, 139, 0.5);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.game-minimap.expanded .minimap-key {
+  width: 26px;
+  height: 26px;
+  font-size: 0.8rem;
+}
+
+/* Map image area — background-image set inline by GameUI */
+.minimap-content {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 30px);
+  overflow: hidden;
+}
+
+.game-minimap.expanded .minimap-content {
+  height: calc(100% - 44px);
+}
+
+/* Canvas fills the minimap content area exactly — dot is drawn on it by the RAF loop */
+.minimap-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Live X/Z readout for calibrating MINIMAP_CONFIG world bounds */
+.minimap-coords {
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  font-size: 0.55rem;
+  font-family: 'Courier New', monospace;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 4px;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 3;
+  white-space: nowrap;
+}
+
+
 
 
 

@@ -40,6 +40,9 @@ function GamePage() {
   const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef(null)
 
+  // Shared ref to the Three.js player Group — set by GameCanvas, read by GameUI minimap
+  const sharedPlayerRef = useRef(null)
+
   const navigate = useNavigate()
 
   // Centralized audio management - plays across loading and menu screens
@@ -202,6 +205,7 @@ function GamePage() {
               selectedBuilding={selectedBuilding}
               teleportTarget={teleportTarget}
               onFloorChange={handleFloorChange}
+              onPlayerRef={(ref) => { sharedPlayerRef.current = ref }}
               missions={missions}
               setMissions={setMissions}
             />
@@ -215,6 +219,7 @@ function GamePage() {
               setCurrentFloor={setCurrentFloor}
               missions={missions}
               onMissionUpdate={setMissions}
+              playerRef={sharedPlayerRef}
             />
           </div>
         )}

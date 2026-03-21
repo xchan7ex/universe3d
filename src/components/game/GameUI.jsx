@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import MissionPanel from './MissionPanel'
 import SearchLocation from './SearchLocation'
 import Feedback from './Feedback'
+import Minimap from './Minimap'
 
 // Building data for display names
 const BUILDING_INFO = {
@@ -11,7 +12,7 @@ const BUILDING_INFO = {
   'ramakrishna': { name: 'Ramakrishna Building', floors: 5 }
 }
 
-function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTryDressCode, onTeleport, currentFloor, setCurrentFloor, missions, onMissionUpdate }) {
+function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTryDressCode, onTeleport, currentFloor, setCurrentFloor, missions, onMissionUpdate, playerRef }) {
   const navigate = useNavigate()
   const [showControls, setShowControls] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
@@ -395,18 +396,6 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTryDressCode
         }}
       />
 
-      {/* Mini Map */}
-      <div className={`game-minimap ${isMinimapExpanded ? "expanded" : ""}`}>
-        <div className="minimap-header">
-          <span>{buildingInfo.name}</span>
-          <span className="minimap-key">M</span>
-        </div>
-        <div className="minimap-content">
-          <div className="minimap-player-dot"></div>
-        </div>
-        {/* <div className="minimap-hint">Hold M to expand</div> */}
-      </div>
-
       {/* Navigation Message */}
       {navigationMessage && (
         <div className="navigation-message-toast">
@@ -419,6 +408,15 @@ function GameUI({ playerNickname, selectedBuilding, onBackToMenu, onTryDressCode
           </span>
         </div>
       )}
+
+      {/*  Mini Map */}
+      <Minimap
+        playerRef={playerRef}
+        currentFloor={currentFloor}
+        buildingName={buildingInfo.name}
+        isExpanded={isMinimapExpanded}
+        selectedBuilding={selectedBuilding}
+      />
 
       {/* Bottom Info */}
       <div className="game-ui-bottom">

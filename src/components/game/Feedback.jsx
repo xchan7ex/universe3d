@@ -1,31 +1,43 @@
 import React, { useState } from 'react';
 import '../../styles/game-ui.css';
 
-const Feedback = ({ onComplete, onClose }) => {
+const Feedback = ({ onComplete, onClose, playerNickname }) => {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        try {
+            const response = await fetch('https://universe3d.onrender.com/api/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rating, review: comment, nickname: playerNickname || 'Explorer' }),
+            });
 
-        // Simulate API call
-        setTimeout(() => {
+            if (response.ok) {
+                setSubmitted(true);
+                setTimeout(() => {
+                    if (onComplete) onComplete();
+                }, 1500);
+            } else {
+                console.error('Failed to submit feedback');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+        } finally {
             setIsSubmitting(false);
-            setSubmitted(true);
-
-            // Auto-proceed after showing success message for a brief moment
-            setTimeout(() => {
-                onComplete();
-            }, 1500);
-        }, 1000);
+        }
     };
 
     const handleSkip = () => {
-        onComplete();
+        if (onComplete) onComplete();
+        else if (onClose) onClose();
     };
 
     if (submitted) {
