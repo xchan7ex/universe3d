@@ -118,20 +118,17 @@ const MISSIONS = [
   },
   {
     id: 'mission-3',
-    title: 'Find Lecture Hall 1LA',
-    description: 'Locate the main lecture hall',
+    title: 'Find Tutorial Room 1LA',
+    description: 'Locate the main tutorial room',
     coordinates: { x: -7.5, y: 7.1, z: -5.8 },
     completed: false,
     info: {
-      title: 'Lecture Hall 1LA',
-      description: 'Lecture Hall 1LA is one of the largest teaching spaces on campus, accommodating up to 200 students. Equipped with modern audio-visual technology, comfortable seating, and excellent acoustics, it hosts major lectures, seminars, and presentations.',
+      title: 'Tutorial Room 1LA',
+      description: 'Tutorial Room 1LA is a main teaching space used for tutorials, and presentations. Many core module sessions take place here according to the student timetable.',
       details: [
-        '👥 Capacity: 200 students',
-        '🎥 Advanced AV equipment',
-        '🪑 Tiered comfortable seating',
-        '🔊 Professional sound system',
-        '📡 High-speed WiFi',
-        '🖥️ Multiple display screens'
+        '🎥 Presentation and teaching environment',
+        '📑 Lectures conducted by academic staff',
+        '⏰ Sessions follow the module timetable'
       ]
     },
     questions: [
