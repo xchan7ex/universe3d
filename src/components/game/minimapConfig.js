@@ -25,3 +25,30 @@ export function getFloorConfig(playerY) {
     }
     return best
 }
+
+//  World → Canvas projection
+export function worldToCanvas(worldX, worldZ, cfg, canvasW, canvasH, imgNaturalW, imgNaturalH) {
+    // Normalised fractions within the world bounds (0 = min edge, 1 = max edge)
+    const nx = (worldX - cfg.minX) / (cfg.maxX - cfg.minX)   // forward/back
+    const nz = (worldZ - cfg.minZ) / (cfg.maxZ - cfg.minZ)   // left/right (high Z = right)
+
+    // Letterbox rect (same maths as CSS object-fit: contain)
+    const imgAspect    = imgNaturalW / imgNaturalH
+    const canvasAspect = canvasW / canvasH
+
+    let drawW, drawH, drawX, drawY
+    if (imgAspect > canvasAspect) {
+        drawW = canvasW;           drawH = canvasW / imgAspect
+        drawX = 0;                 drawY = (canvasH - drawH) / 2
+    } else {
+        drawH = canvasH;           drawW = canvasH * imgAspect
+        drawX = (canvasW - drawW) / 2;  drawY = 0
+    }
+
+    // worldZ → image X  (nz: 0=left … 1=right)
+    // worldX → image Y  (nx: 1=top  … 0=bottom — inverted)
+    const px = drawX + nz * drawW
+    const py = drawY + (1 - nx) * drawH
+
+    return { px: Math.round(px), py: Math.round(py), drawX, drawY, drawW, drawH }
+}
