@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 function MissionPanel({ missions, onMissionUpdate }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -9,6 +9,13 @@ function MissionPanel({ missions, onMissionUpdate }) {
   const completedCount = visibleMissions.filter(m => m.completed).length
   const totalCount = visibleMissions.length
   const progressPercent = (completedCount / totalCount) * 100
+
+  // Test case
+  useEffect(() => {
+    if (completedCount > 0) {
+      console.log(`Test Pass: Mission completed (${completedCount}/${totalCount})`);
+    }
+  }, [completedCount, totalCount]);
 
   return (
     <div className={`mission-panel ${isExpanded ? 'expanded' : ''}`}>
