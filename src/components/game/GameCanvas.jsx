@@ -51,7 +51,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
     moveLeft: false,
     moveRight: false,
     sprint: false,
-    speed: 0.12,
+    speed: 0.06,
     sprintMultiplier: 2,
     currentY: 0,
     targetY: 0
@@ -398,8 +398,8 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
       moveLeft: false,
       moveRight: false,
       sprint: false,
-      speed: 0.06,
-      sprintMultiplier: 2.5,
+      speed: 0.03,
+      sprintMultiplier: 2.0,
       currentY: 0,
       targetY: 0,
       isOnStairs: false,
@@ -549,6 +549,7 @@ function GameCanvas({ selectedBuilding, teleportTarget, onFloorChange, missions,
             } else if (clipName.includes('walk')) {
               animations['walk'] = action
             } else if (clipName.includes('ascend')) {
+              action.timeScale = 0.5; // Reduce climbing speed
               animations['ascend'] = action
             }
           })
