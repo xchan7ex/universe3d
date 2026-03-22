@@ -19,8 +19,6 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
                 },
                 body: JSON.stringify({ rating, review: comment, nickname: playerNickname }),
             });
-                body: JSON.stringify({ rating, review: comment, nickname: playerNickname || 'Explorer' }),
-            });
 
             if (response.ok) {
                 setSubmitted(true);
