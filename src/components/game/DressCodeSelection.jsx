@@ -197,11 +197,16 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
   const [warningMessage, setWarningMessage] = useState([]);
   
   const selectSoundRef = useRef(null);
+  const errorSoundRef = useRef(null);
 
   useEffect(() => {
     selectSoundRef.current = new Audio('/audio/dress-select.mp3');
     selectSoundRef.current.volume = 0.5;
     selectSoundRef.current.load();
+
+    errorSoundRef.current = new Audio('/audio/error.mp3');
+    errorSoundRef.current.volume = 0.5;
+    errorSoundRef.current.load();
   }, []);
 
   // Selection state structured by gender
@@ -240,7 +245,7 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
         }
       }));
       setIsTransitioning(false);
-    }, 200);
+    }, 400);
   };
 
   const handleSelect = (category, id) => {
@@ -293,12 +298,20 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
     const validationResult = validateOutfit(gender, activeSelections);
     
     if (!validationResult.isValid) {
+      if (errorSoundRef.current && !isMuted) {
+        errorSoundRef.current.currentTime = 0;
+        errorSoundRef.current.play().catch(() => {});
+      }
       setWarningMessage(validationResult.errors);
       setShowWarning(true);
       return; // Stop navigation
     }
 
     // Show success popup instead of immediately continuing
+    if (selectSoundRef.current && !isMuted) {
+      selectSoundRef.current.currentTime = 0;
+      selectSoundRef.current.play().catch(() => {});
+    }
     setShowSuccess(true);
   };
 
@@ -561,19 +574,31 @@ const DressCodeSelection = ({ onComplete, isMuted, onToggleMute }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 className="validation-modal-btn" 
-                onClick={() => onComplete({
-                  gender,
-                  top: selections[gender].top,
-                  bottom: selections[gender].bottom,
-                  footwear: selections[gender].footwear
-                })}
+                onClick={() => {
+                  if (selectSoundRef.current && !isMuted) {
+                    selectSoundRef.current.currentTime = 0;
+                    selectSoundRef.current.play().catch(() => {});
+                  }
+                  onComplete({
+                    gender,
+                    top: selections[gender].top,
+                    bottom: selections[gender].bottom,
+                    footwear: selections[gender].footwear
+                  });
+                }}
               >
                 Continue to Game
               </button>
               <button 
                 className="validation-modal-btn" 
                 style={{ background: 'rgba(255, 255, 255, 0.15)', color: '#fff', border: '2px solid rgba(255, 255, 255, 0.4)', boxShadow: 'none' }} 
-                onClick={() => setShowSuccess(false)}
+                onClick={() => {
+                  if (errorSoundRef.current && !isMuted) {
+                    errorSoundRef.current.currentTime = 0;
+                    errorSoundRef.current.play().catch(() => {});
+                  }
+                  setShowSuccess(false);
+                }}
               >
                 Back to Selection
               </button>
