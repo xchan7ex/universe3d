@@ -21,6 +21,7 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
             });
 
             if (response.ok) {
+                console.log('Feedback sent successfully');
                 setSubmitted(true);
             } else {
                 console.error('Failed to submit feedback');
