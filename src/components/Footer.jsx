@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Footer() {
+function Footer({ openModal }) {
   return (
     <footer>
       <div className="section-container">
@@ -65,9 +65,9 @@ function Footer() {
         <div className="footer-bottom">
           <p className="footer-copyright">&copy; 2026 Universe3D by Team ExploreX. All rights reserved.</p>
           <div className="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Cookie Policy</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); openModal('privacy'); }}>Privacy Policy</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); openModal('terms'); }}>Terms of Service</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); openModal('cookie'); }}>Cookie Policy</a>
           </div>
         </div>
       </div>
