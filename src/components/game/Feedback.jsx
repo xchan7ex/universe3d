@@ -12,11 +12,13 @@ const Feedback = ({ onComplete, onClose, playerNickname }) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const response = await fetch('https://universe3d.onrender.com/api/feedback', {
+            const response = await fetch('https://feedback-production-6600.up.railway.app/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({ rating, review: comment, nickname: playerNickname }),
+            });
                 body: JSON.stringify({ rating, review: comment, nickname: playerNickname || 'Explorer' }),
             });
 
